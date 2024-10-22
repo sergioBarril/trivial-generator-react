@@ -1,32 +1,33 @@
-import Versions from './components/Versions'
-import electronLogo from './assets/electron.svg'
+import MainButton from "./components/MainButton";
 
-function App(): JSX.Element {
-  const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
+import listIcon from "./assets/icons/list.png";
+import MainLogo from "./components/MainLogo";
 
-  return (
-    <>
-      <img alt="logo" className="logo" src={electronLogo} />
-      <div className="creator">Powered by electron-vite</div>
-      <div className="text">Builds an Electron app with React and TypeScript</div>
-      <p className="tip">
-        Please try pressing <code>F12</code> to <span className="text-3xl">open the devTool</span>
-      </p>
-      <div className="actions">
-        <div className="action">
-          <a href="https://electron-vite.org/" target="_blank" rel="noreferrer">
-            Documentation
-          </a>
-        </div>
-        <div className="action">
+/*
+   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
+
+       <div className="action">
           <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
             Send IPC
           </a>
         </div>
+
+ */
+
+function App(): JSX.Element {
+  return (
+    <>
+      <MainLogo />
+      <h1 className="mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl text-white">
+        Trivial Generator
+      </h1>
+      <div>
+        <div className="max-w-xl m-auto flex flex-col align-center justify-center">
+          <MainButton iconUrl={listIcon} label="Load List 2" />
+        </div>
       </div>
-      <Versions></Versions>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
