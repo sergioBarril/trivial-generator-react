@@ -1,8 +1,3 @@
-import MainButton from "./components/MainButton";
-
-import listIcon from "./assets/icons/list.png";
-import MainLogo from "./components/MainLogo";
-
 /*
    const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
 
@@ -14,17 +9,15 @@ import MainLogo from "./components/MainLogo";
 
  */
 
+import MainMenu from "./components/MainMenu";
+
 function App(): JSX.Element {
   return (
     <>
-      <MainLogo />
-      <h1 className="mb-4 text-4xl font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl text-white">
-        Trivial Generator
-      </h1>
-      <div>
-        <div className="max-w-xl m-auto flex flex-col align-center justify-center">
-          <MainButton iconUrl={listIcon} label="Load List 2" />
-        </div>
+      <div className="grid grid-cols-[10%_1fr_10%] gap-0 grid-rows-1 h-full min-h-full">
+        <div />
+        <MainMenu />
+        <div />
       </div>
     </>
   );
