@@ -13,13 +13,11 @@ import MainMenu from "./components/MainMenu";
 
 function App(): JSX.Element {
   return (
-    <>
-      <div className="grid grid-cols-[10%_1fr_10%] gap-0 grid-rows-1 h-full min-h-full">
-        <div />
-        <MainMenu />
-        <div />
-      </div>
-    </>
+    <div className="dark grid grid-cols-[10%_1fr_10%] gap-0 grid-rows-1 h-full min-h-full">
+      <div />
+      <MainMenu />
+      <div />
+    </div>
   );
 }
 
