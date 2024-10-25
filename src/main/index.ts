@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain } from "electron";
+import { app, shell, BrowserWindow, ipcMain, dialog } from "electron";
 import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
@@ -72,3 +72,14 @@ app.on("window-all-closed", () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
+ipcMain.on("dialog:openDirectory", async (event, args) => {
+  {
+    const mainWindow = BrowserWindow.fromWebContents(event.sender)!;
+    const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+      properties: ["openDirectory"]
+    });
+    if (!canceled) {
+      mainWindow.webContents.send("dialog:outputDirectory", { path: filePaths[0] });
+    }
+  }
+});
