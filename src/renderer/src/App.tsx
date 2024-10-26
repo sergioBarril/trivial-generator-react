@@ -1,23 +1,13 @@
-/*
-   const ipcHandle = (): void => window.electron.ipcRenderer.send('ping')
-
-       <div className="action">
-          <a target="_blank" rel="noreferrer" onClick={ipcHandle}>
-            Send IPC
-          </a>
-        </div>
-
- */
-
+import { Route, Routes } from "react-router-dom";
 import MainMenu from "./components/MainMenu";
+import { CardWithForm } from "./components/MyCard";
 
 function App(): JSX.Element {
   return (
-    <div className="dark grid grid-cols-[10%_1fr_10%] gap-0 grid-rows-1 h-full min-h-full">
-      <div />
-      <MainMenu />
-      <div />
-    </div>
+    <Routes>
+      <Route path="/" element={<MainMenu />} />
+      <Route path="/card" element={<CardWithForm />} />
+    </Routes>
   );
 }
 
