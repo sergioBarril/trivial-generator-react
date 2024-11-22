@@ -41,7 +41,7 @@ function MainMenu() {
     event.preventDefault();
     // window.electron.ipcRenderer.send("list:editList", { listFilePath: listFilePath });
     console.log("pfft");
-    navigate("/card");
+    navigate("/list-editor");
   };
 
   const displayedListPath = listFilePath || "No file selected";
