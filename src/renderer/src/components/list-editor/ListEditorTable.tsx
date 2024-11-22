@@ -7,8 +7,14 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/Table";
 
 import { columns } from "./ListEditorTable.columns";
+import { Song } from "./ListEditorTable.mock";
 
-export const ListEditorTable = ({ defaultData, className }) => {
+type ListEditorTableProps = {
+  defaultData: Array<Song>;
+  className?: string;
+};
+
+export const ListEditorTable = ({ defaultData, className }: ListEditorTableProps) => {
   const [data, setData] = useState(() => [...defaultData]);
 
   const updateData = (rowIndex: number, columnId: string, value: string) => {
@@ -33,7 +39,7 @@ export const ListEditorTable = ({ defaultData, className }) => {
   });
 
   return (
-    <Table className={className}>
+    <Table divClassName={className}>
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>

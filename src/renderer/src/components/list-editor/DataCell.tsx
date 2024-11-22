@@ -28,20 +28,18 @@ export const DataCell = ({ getValue, row, column, table }) => {
   };
 
   return columnMeta?.type === "select" ? (
-    <>
-      <Select onValueChange={onSelectChange} value={value}>
-        <SelectTrigger>
-          <SelectValue placeholder="Pick one" />
-        </SelectTrigger>
-        <SelectContent>
-          {columnMeta?.options?.map((option: Option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </>
+    <Select onValueChange={onSelectChange} value={value}>
+      <SelectTrigger>
+        <SelectValue placeholder="Pick one" />
+      </SelectTrigger>
+      <SelectContent>
+        {columnMeta?.options?.map((option: Option) => (
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   ) : (
     <Input
       value={value}
