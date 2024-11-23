@@ -5,6 +5,8 @@ import { songList } from "./ListEditorTable.mock";
 import CustomInput from "../CustomInput";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
+import { useLocation } from "react-router-dom";
+import { animeListSchema } from "./ListEditor.schemas";
 
 type ListEditorProps = {
   defaultListPath?: string;
@@ -12,7 +14,9 @@ type ListEditorProps = {
 
 const DEFAULT_DATA = songList.songs;
 
-function ListEditor({ defaultListPath = "" }: ListEditorProps) {
+function ListEditor() {
+  const { defaultListPath } = useLocation().state as ListEditorProps;
+
   const [author, setAuthor] = useState("");
   const [data, setData] = useState(() => [...DEFAULT_DATA]);
   const [listPath, setListPath] = useState(defaultListPath);
@@ -21,6 +25,17 @@ function ListEditor({ defaultListPath = "" }: ListEditorProps) {
     event.preventDefault();
     window.electron.ipcRenderer.send("dialog:saveAs");
   };
+
+  useEffect(() => {
+    if (!defaultListPath) return;
+    const file = window.api.fs.readFileSync(defaultListPath, "utf-8").toString();
+
+    const rawListObject = JSON.parse(file);
+    const validatedData = animeListSchema.parse(rawListObject);
+
+    setAuthor(validatedData.author);
+    setData(validatedData.songs);
+  }, []);
 
   useEffect(() => {
     const handleListPathChanged = (_, params) => {

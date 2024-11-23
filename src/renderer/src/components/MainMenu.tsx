@@ -39,7 +39,7 @@ function MainMenu() {
 
   const handleEditListClick = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
-    navigate("/list-editor");
+    navigate("/list-editor", { state: { defaultListPath: listFilePath } });
   };
 
   const displayedListPath = listFilePath || "No file selected";

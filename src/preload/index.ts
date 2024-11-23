@@ -1,10 +1,19 @@
 import { contextBridge, ipcRenderer } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
 
+import * as fs from "fs";
+
 // Custom APIs for renderer
 const api = {
-  selectFolder: () => ipcRenderer.send("dialog:openDirectory")
+  selectFolder: () => ipcRenderer.send("dialog:openDirectory"),
+  fs: {
+    readFileSync: (filePath: string, encoding: BufferEncoding) =>
+      fs.readFileSync(filePath, encoding),
+    writeFileSync: (filePath: string, text: string) => fs.writeFileSync(filePath, text)
+  }
 };
+
+export type RendererAPI = typeof api;
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
