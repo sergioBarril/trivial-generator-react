@@ -86,7 +86,13 @@ function MainMenu() {
 
         <div className="max-w-xl m-auto flex flex-row align-center justify-center">
           <MainButton iconUrl={newIcon} label="New List" />
-          <MainButton iconUrl={listIcon} label="Edit List" onClick={handleEditListClick} />
+          <MainButton
+            iconUrl={listIcon}
+            label="Edit List"
+            disabled={!listFile.path}
+            onClick={handleEditListClick}
+          />
+          <MainButton iconUrl={listIcon} label="Generate Trivial" disabled />
         </div>
 
         <div className="grid grid-cols-[5%_3fr_5fr] grid-rows-[40px_40px] gap-y-4 gap-x-3">
