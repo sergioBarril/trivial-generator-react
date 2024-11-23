@@ -10,7 +10,7 @@ export const columns = [
   columnHelper.display({
     id: "index",
     cell: ({ row }) => {
-      return row.index;
+      return row.index + 1;
     }
   }),
   columnHelper.display({
