@@ -5,7 +5,7 @@ import CustomInput from "../CustomInput";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { useLocation, useNavigate } from "react-router-dom";
-import { animeListSchema, AnimeSong, animeSongSchema } from "./ListEditor.schemas";
+import { animeListSchema, AnimeSong, AnimeSongList, animeSongSchema } from "./ListEditor.schemas";
 
 type ListEditorProps = {
   defaultListPath?: string;
@@ -51,16 +51,23 @@ function ListEditor() {
     return window.electron.ipcRenderer.on("dialog:listTargetPath", handleListPathChanged);
   }, []);
 
-  const handleSaveAndQuit = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    console.log("data", data);
-    console.log("author", author);
-    console.log("listPath", listPath);
-  };
-
   const handleCancelClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     navigate("/", { state: { defaultListPath, defaultOutputDir } });
+  };
+
+  const handleSaveAndQuitClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+
+    const songList: AnimeSongList = {
+      author,
+      songs: data
+    };
+
+    const jsonOutput = JSON.stringify(songList, null, "\t");
+    window.api.fs.writeFileSync(listPath!, jsonOutput);
+
+    navigate("/", { state: { defaultListPath: listPath, defaultOutputDir } });
   };
 
   const handleAddRowClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -77,6 +84,10 @@ function ListEditor() {
       }
     }, 0);
   };
+
+  const isCurrentDataValid = data.every((song) => song.link.length);
+
+  const canSave = isCurrentDataValid && listPath?.length;
 
   return (
     <div className="container mx-0 max-w-full w-full py-10">
@@ -126,7 +137,9 @@ function ListEditor() {
       </div>
 
       <div className="flex flex-row-reverse gap-5">
-        <Button onClick={handleSaveAndQuit}>Save and quit</Button>
+        <Button onClick={handleSaveAndQuitClick} disabled={!canSave}>
+          Save and quit
+        </Button>
         <Button variant={"secondary"} onClick={handleCancelClick}>
           Cancel
         </Button>
