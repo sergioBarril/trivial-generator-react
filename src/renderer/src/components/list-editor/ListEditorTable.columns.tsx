@@ -44,7 +44,7 @@ export const columns = [
       );
 
       return (
-        <div className="flex items-center justify-between h-full gap-2">
+        <div className="flex items-center justify-between h-full gap-0">
           {/* Arrows on the Left */}
           <div className="flex flex-col items-center space-y-1">
             {row.index !== 0 && upButton}
