@@ -15,6 +15,11 @@ type ListEditorTableProps = {
   className?: string;
 };
 
+export type ListEditorTableMeta = {
+  updateData: (rowIndex: number, columnId: string, value: string) => void;
+  deleteRow: (rowIndex: number) => void;
+};
+
 export const ListEditorTable = ({ className, data, setData }: ListEditorTableProps) => {
   const updateData = (rowIndex: number, columnId: string, value: string) => {
     setData((old) =>
@@ -30,11 +35,15 @@ export const ListEditorTable = ({ className, data, setData }: ListEditorTablePro
     );
   };
 
+  const deleteRow = (rowIndex: number) => {
+    setData((old) => old.filter((_, i) => i !== rowIndex));
+  };
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    meta: { updateData }
+    meta: { updateData, deleteRow }
   });
 
   return (

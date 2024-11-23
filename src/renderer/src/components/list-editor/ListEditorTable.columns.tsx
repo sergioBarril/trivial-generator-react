@@ -1,9 +1,28 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { DataCell } from "./DataCell";
 import { Song } from "./ListEditorTable.mock";
+import { X } from "lucide-react";
+import type { ListEditorTableMeta } from "./ListEditorTable";
 
 const columnHelper = createColumnHelper<Song>();
+
 export const columns = [
+  columnHelper.display({
+    id: "actions",
+    cell: ({ row, table }) => {
+      const tableMeta = table.options.meta as ListEditorTableMeta;
+
+      if (!tableMeta) return;
+
+      return (
+        <X
+          onClick={() => {
+            tableMeta.deleteRow(row.index);
+          }}
+        />
+      );
+    }
+  }),
   columnHelper.accessor("anime", {
     header: "Anime",
     cell: DataCell,
