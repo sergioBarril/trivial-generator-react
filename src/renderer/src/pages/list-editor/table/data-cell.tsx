@@ -1,7 +1,13 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
-import { Input } from "../ui/Input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/Select";
+import { Input } from "../../../components/ui/Input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "../../../components/ui/Select";
 
 type Option = {
   label: string;

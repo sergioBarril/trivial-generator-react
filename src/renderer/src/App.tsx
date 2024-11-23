@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
-import MainMenu from "./components/MainMenu";
+import MainMenu from "./pages/index/index.root";
 
-import ListEditor from "./components/list-editor/ListEditor";
+import ListEditor from "./pages/list-editor/list-editor.root";
 
 function App(): JSX.Element {
   return (

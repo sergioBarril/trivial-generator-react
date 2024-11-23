@@ -1,9 +1,8 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import { DataCell } from "./DataCell";
-import { Trash2 } from "lucide-react";
-import type { ListEditorTableMeta } from "./ListEditorTable";
+import { DataCell } from "./data-cell";
 
-import { AnimeSong } from "./ListEditor.schemas";
+import { AnimeSong } from "../list-editor.schemas";
+import ActionsCell from "./actions-cell";
 
 const columnHelper = createColumnHelper<AnimeSong>();
 
@@ -16,50 +15,7 @@ export const columns = [
   }),
   columnHelper.display({
     id: "actions",
-    cell: ({ row, table }) => {
-      const tableMeta = table.options.meta as ListEditorTableMeta;
-
-      if (!tableMeta) return;
-
-      const upButton = (
-        <button
-          className="text-gray-600 hover:text-gray-800 p-0 focus:outline-none"
-          onClick={() => {
-            tableMeta.moveRowUp(row.index);
-          }}
-        >
-          ▲
-        </button>
-      );
-
-      const downButton = (
-        <button
-          className="text-gray-600 hover:text-gray-800 p-0 focus:outline-none"
-          onClick={() => {
-            tableMeta.moveRowDown(row.index);
-          }}
-        >
-          ▼
-        </button>
-      );
-
-      return (
-        <div className="flex items-center justify-between h-full">
-          {/* Arrows on the Left */}
-          <div className="flex flex-col items-center space-y-1">
-            {row.index !== 0 && upButton}
-            {row.index !== table.getRowCount() - 1 && downButton}
-          </div>
-
-          <Trash2
-            className="cursor-pointer"
-            onClick={() => {
-              tableMeta.deleteRow(row.index);
-            }}
-          />
-        </div>
-      );
-    }
+    cell: ActionsCell
   }),
   columnHelper.accessor("anime", {
     header: "Anime",
