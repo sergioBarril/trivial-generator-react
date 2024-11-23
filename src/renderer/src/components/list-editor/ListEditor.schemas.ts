@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 export const animeSongSchema = z.object({
-  anime: z.string(),
-  oped: z.enum(["Opening", "Ending", "OST"]),
-  band: z.string(),
-  name: z.string(),
-  difficulty: z.enum(["easy", "normal", "hard"]),
-  link: z.string()
+  anime: z.string().default(""),
+  oped: z.enum(["Opening", "Ending", "OST"]).default("Opening"),
+  band: z.string().default(""),
+  name: z.string().default(""),
+  difficulty: z.enum(["easy", "normal", "hard"]).default("normal"),
+  link: z.string().default("")
 });
 
 export const animeListSchema = z.object({

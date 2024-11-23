@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, LegacyRef, SetStateAction } from "react";
 
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/Table";
@@ -13,6 +13,7 @@ type ListEditorTableProps = {
   data: Array<AnimeSong>;
   setData: Dispatch<SetStateAction<AnimeSong[]>>;
   className?: string;
+  tableDivRef?: LegacyRef<HTMLDivElement>;
 };
 
 export type ListEditorTableMeta = {
@@ -22,7 +23,12 @@ export type ListEditorTableMeta = {
   moveRowDown: (rowIndex: number) => void;
 };
 
-export const ListEditorTable = ({ className, data, setData }: ListEditorTableProps) => {
+export const ListEditorTable = ({
+  className,
+  data,
+  setData,
+  tableDivRef
+}: ListEditorTableProps) => {
   const updateData = (rowIndex: number, columnId: string, value: string) => {
     setData((old) =>
       old.map((row, index) => {
@@ -79,7 +85,7 @@ export const ListEditorTable = ({ className, data, setData }: ListEditorTablePro
   });
 
   return (
-    <Table divClassName={className}>
+    <Table divClassName={className} divRef={tableDivRef}>
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>

@@ -1,16 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Label } from "../ui/Label";
 import { ListEditorTable } from "./ListEditorTable";
 import CustomInput from "../CustomInput";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { useLocation, useNavigate } from "react-router-dom";
-import { animeListSchema, AnimeSong } from "./ListEditor.schemas";
+import { animeListSchema, AnimeSong, animeSongSchema } from "./ListEditor.schemas";
 
 type ListEditorProps = {
   defaultListPath?: string;
   defaultOutputDir?: string;
 };
+
+function buildDefaultRow() {
+  return animeSongSchema.parse({});
+}
 
 function ListEditor() {
   const { defaultListPath, defaultOutputDir } = useLocation().state as ListEditorProps;
@@ -20,6 +24,8 @@ function ListEditor() {
   const [author, setAuthor] = useState("");
   const [data, setData] = useState<AnimeSong[]>([]);
   const [listPath, setListPath] = useState(defaultListPath);
+
+  const tableDivRef = useRef<HTMLTableElement>(null);
 
   const handleInputSaveAsClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
@@ -57,14 +63,34 @@ function ListEditor() {
     navigate("/", { state: { defaultListPath, defaultOutputDir } });
   };
 
+  const handleAddRowClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    setData((prevData) => {
+      const newRow = buildDefaultRow();
+      return [...prevData, newRow];
+    });
+
+    // Scroll to the bottom after updating the data
+    setTimeout(() => {
+      if (tableDivRef.current) {
+        tableDivRef.current.scrollTop = tableDivRef.current.scrollHeight;
+      }
+    }, 0);
+  };
+
   return (
     <div className="container mx-0 max-w-full w-full py-10">
       <h1 className="mx-auto mb-6 text-xl font-extrabold leading-none tracking-tight md:text-2xl lg:text-3xl text-white">
         List Editor
       </h1>
-      <ListEditorTable data={data} setData={setData} className="max-h-[50vh]" />
+      <ListEditorTable
+        data={data}
+        setData={setData}
+        tableDivRef={tableDivRef}
+        className="max-h-[50vh]"
+      />
 
-      <div className="mt-10">
+      <div className="mt-10 flex flex-row">
         <Label className="text-2xl text-right">Output file:</Label>
         <Label
           dir="rtl"
@@ -76,10 +102,12 @@ function ListEditor() {
           className="ml-5 h-9"
           accept="application/json"
           text="Choose a destination"
-          onClick={(e) => {
-            handleInputSaveAsClick(e);
-          }}
+          onClick={handleInputSaveAsClick}
         />
+
+        <Button variant="outline" className="ml-auto" onClick={handleAddRowClick}>
+          Add row
+        </Button>
       </div>
 
       <div className="flex flex-row mt-8 gap-5">
@@ -98,7 +126,7 @@ function ListEditor() {
       </div>
 
       <div className="flex flex-row-reverse gap-5">
-        <Button onClick={(e) => handleSaveAndQuit(e)}>Save and quit</Button>
+        <Button onClick={handleSaveAndQuit}>Save and quit</Button>
         <Button variant={"secondary"} onClick={handleCancelClick}>
           Cancel
         </Button>
