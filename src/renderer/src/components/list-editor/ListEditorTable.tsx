@@ -18,6 +18,8 @@ type ListEditorTableProps = {
 export type ListEditorTableMeta = {
   updateData: (rowIndex: number, columnId: string, value: string) => void;
   deleteRow: (rowIndex: number) => void;
+  moveRowUp: (rowIndex: number) => void;
+  moveRowDown: (rowIndex: number) => void;
 };
 
 export const ListEditorTable = ({ className, data, setData }: ListEditorTableProps) => {
@@ -39,11 +41,41 @@ export const ListEditorTable = ({ className, data, setData }: ListEditorTablePro
     setData((old) => old.filter((_, i) => i !== rowIndex));
   };
 
+  const moveRowUp = (rowIndex: number) => {
+    if (rowIndex === 0) return;
+
+    setData((old) => {
+      const targetRow = old[rowIndex - 1];
+      const currentRow = old[rowIndex];
+
+      const newData = [...old];
+      newData[rowIndex] = targetRow;
+      newData[rowIndex - 1] = currentRow;
+
+      return newData;
+    });
+  };
+
+  const moveRowDown = (rowIndex: number) => {
+    if (rowIndex === data.length - 1) return;
+
+    setData((old) => {
+      const targetRow = old[rowIndex + 1];
+      const currentRow = old[rowIndex];
+
+      const newData = [...old];
+      newData[rowIndex] = targetRow;
+      newData[rowIndex + 1] = currentRow;
+
+      return newData;
+    });
+  };
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    meta: { updateData, deleteRow }
+    meta: { updateData, deleteRow, moveRowUp, moveRowDown }
   });
 
   return (

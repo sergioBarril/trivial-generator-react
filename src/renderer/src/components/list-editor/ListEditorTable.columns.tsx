@@ -1,12 +1,18 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { DataCell } from "./DataCell";
 import { Song } from "./ListEditorTable.mock";
-import { X } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import type { ListEditorTableMeta } from "./ListEditorTable";
 
 const columnHelper = createColumnHelper<Song>();
 
 export const columns = [
+  columnHelper.display({
+    id: "index",
+    cell: ({ row }) => {
+      return row.index;
+    }
+  }),
   columnHelper.display({
     id: "actions",
     cell: ({ row, table }) => {
@@ -14,12 +20,43 @@ export const columns = [
 
       if (!tableMeta) return;
 
-      return (
-        <X
+      const upButton = (
+        <button
+          className="text-gray-600 hover:text-gray-800 p-0 focus:outline-none"
           onClick={() => {
-            tableMeta.deleteRow(row.index);
+            tableMeta.moveRowUp(row.index); // Implement moveRowUp
           }}
-        />
+        >
+          ▲
+        </button>
+      );
+
+      const downButton = (
+        <button
+          className="text-gray-600 hover:text-gray-800 p-0 focus:outline-none"
+          onClick={() => {
+            tableMeta.moveRowDown(row.index); // Implement moveRowDown
+          }}
+        >
+          ▼
+        </button>
+      );
+
+      return (
+        <div className="flex items-center justify-between h-full gap-2">
+          {/* Arrows on the Left */}
+          <div className="flex flex-col items-center space-y-1">
+            {row.index !== 0 && upButton}
+            {row.index !== table.getRowCount() - 1 && downButton}
+          </div>
+
+          <Trash2
+            className="cursor-pointer"
+            onClick={() => {
+              tableMeta.deleteRow(row.index);
+            }}
+          />
+        </div>
       );
     }
   }),
