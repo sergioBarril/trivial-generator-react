@@ -5,7 +5,8 @@ import FileInput from "../../components/FileInput";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { useLocation, useNavigate } from "react-router-dom";
-import { animeListSchema, AnimeSong, AnimeSongList, animeSongSchema } from "./list-editor.schemas";
+import { animeListSchema, animeSongSchema } from "@renderer/schemas/list.schemas";
+import { AnimeSong, AnimeSongList } from "@renderer/types/list.types";
 
 type ListEditorProps = {
   defaultListPath?: string;

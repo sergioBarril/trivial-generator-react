@@ -8,6 +8,8 @@ import { Label } from "../../components/ui/Label";
 import { useEffect, useState } from "react";
 import FileInput from "../../components/FileInput";
 import { useLocation, useNavigate } from "react-router-dom";
+import { ListFile } from "@renderer/types/list.types";
+import { animeListSchema } from "@renderer/schemas/list.schemas";
 
 type MainMenuProps = {
   defaultListPath?: string;
@@ -19,8 +21,12 @@ function MainMenu() {
   const defaultListPath = defaultState?.defaultListPath || "";
   const defaultOutputDir = defaultState?.defaultOutputDir || "";
 
-  const [listFilePath, setListFilePath] = useState(defaultListPath);
   const [outputDir, setOutputDir] = useState(defaultOutputDir);
+
+  const [listFile, setListFile] = useState<ListFile>({
+    path: defaultListPath,
+    content: { author: "", songs: [] }
+  });
 
   const navigate = useNavigate();
 
@@ -32,12 +38,23 @@ function MainMenu() {
     return window.electron.ipcRenderer.on("dialog:outputDirectory", handleOutputDirectoryEvent);
   }, []);
 
+  useEffect(() => {
+    if (!listFile.path) return;
+
+    const file = window.api.fs.readFileSync(listFile.path, "utf-8").toString();
+
+    const rawListObject = JSON.parse(file);
+    const validatedData = animeListSchema.parse(rawListObject);
+
+    setListFile((oldFile) => ({ ...oldFile, content: validatedData }));
+  }, [listFile.path]);
+
   const handleSongFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newFile = event.target.files && event.target.files?.[0];
     if (newFile) {
-      setListFilePath(newFile.path);
+      setListFile((prev) => ({ ...prev, path: newFile.path }));
     } else {
-      setListFilePath("");
+      setListFile({ path: "", content: { author: "", songs: [] } });
     }
   };
 
@@ -49,11 +66,11 @@ function MainMenu() {
   const handleEditListClick = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
     navigate("/list-editor", {
-      state: { defaultListPath: listFilePath, defaultOutputDir: outputDir }
+      state: { defaultListPath: listFile.path, defaultOutputDir: outputDir }
     });
   };
 
-  const displayedListPath = listFilePath || "No file selected";
+  const displayedListPath = listFile.path || "No file selected";
   const displayedOutputDir = outputDir || "No selected folder";
 
   return (
@@ -89,6 +106,15 @@ function MainMenu() {
             className="font-mono text-lg text-left self-center overflow-hidden text-ellipsis whitespace-nowrap"
           >
             {displayedOutputDir}
+          </Label>
+
+          <div />
+          <Label className="text-2xl text-right">Songs:</Label>
+          <Label
+            dir="rtl"
+            className="font-mono text-lg text-left self-center overflow-hidden text-ellipsis whitespace-nowrap"
+          >
+            {listFile.content?.songs.length ?? 0}
           </Label>
         </div>
 

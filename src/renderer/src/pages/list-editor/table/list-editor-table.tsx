@@ -14,7 +14,7 @@ import {
 } from "../../../components/ui/Table";
 
 import { columns } from "./list-editor-table.columns";
-import { AnimeSong } from "../list-editor.schemas";
+import { AnimeSong } from "@renderer/types/list.types";
 
 type ListEditorTableProps = {
   data: Array<AnimeSong>;

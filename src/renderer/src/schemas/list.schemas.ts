@@ -14,5 +14,7 @@ export const animeListSchema = z.object({
   songs: z.array(animeSongSchema)
 });
 
-export type AnimeSong = z.infer<typeof animeSongSchema>;
-export type AnimeSongList = z.infer<typeof animeListSchema>;
+export const listFileSchema = z.object({
+  path: z.string(),
+  content: animeListSchema
+});
