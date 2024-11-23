@@ -9,10 +9,11 @@ import { animeListSchema, AnimeSong } from "./ListEditor.schemas";
 
 type ListEditorProps = {
   defaultListPath?: string;
+  defaultOutputDir?: string;
 };
 
 function ListEditor() {
-  const { defaultListPath } = useLocation().state as ListEditorProps;
+  const { defaultListPath, defaultOutputDir } = useLocation().state as ListEditorProps;
 
   const navigate = useNavigate();
 
@@ -53,7 +54,7 @@ function ListEditor() {
 
   const handleCancelClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    navigate("/", { state: { defaultListPath } });
+    navigate("/", { state: { defaultListPath, defaultOutputDir } });
   };
 
   return (
