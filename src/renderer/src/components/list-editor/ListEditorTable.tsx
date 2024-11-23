@@ -7,11 +7,11 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/Table";
 
 import { columns } from "./ListEditorTable.columns";
-import { Song } from "./ListEditorTable.mock";
+import { AnimeSong } from "./ListEditor.schemas";
 
 type ListEditorTableProps = {
-  data: Array<Song>;
-  setData: Dispatch<SetStateAction<Song[]>>;
+  data: Array<AnimeSong>;
+  setData: Dispatch<SetStateAction<AnimeSong[]>>;
   className?: string;
 };
 

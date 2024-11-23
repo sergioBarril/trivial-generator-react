@@ -13,3 +13,6 @@ export const animeListSchema = z.object({
   author: z.string().default(""),
   songs: z.array(animeSongSchema)
 });
+
+export type AnimeSong = z.infer<typeof animeSongSchema>;
+export type AnimeSongList = z.infer<typeof animeListSchema>;

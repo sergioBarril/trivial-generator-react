@@ -1,10 +1,11 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { DataCell } from "./DataCell";
-import { Song } from "./ListEditorTable.mock";
 import { Trash2 } from "lucide-react";
 import type { ListEditorTableMeta } from "./ListEditorTable";
 
-const columnHelper = createColumnHelper<Song>();
+import { AnimeSong } from "./ListEditor.schemas";
+
+const columnHelper = createColumnHelper<AnimeSong>();
 
 export const columns = [
   columnHelper.display({
@@ -24,7 +25,7 @@ export const columns = [
         <button
           className="text-gray-600 hover:text-gray-800 p-0 focus:outline-none"
           onClick={() => {
-            tableMeta.moveRowUp(row.index); // Implement moveRowUp
+            tableMeta.moveRowUp(row.index);
           }}
         >
           ▲
@@ -35,7 +36,7 @@ export const columns = [
         <button
           className="text-gray-600 hover:text-gray-800 p-0 focus:outline-none"
           onClick={() => {
-            tableMeta.moveRowDown(row.index); // Implement moveRowDown
+            tableMeta.moveRowDown(row.index);
           }}
         >
           ▼

@@ -1,24 +1,23 @@
 import { useEffect, useState } from "react";
 import { Label } from "../ui/Label";
 import { ListEditorTable } from "./ListEditorTable";
-import { songList } from "./ListEditorTable.mock";
 import CustomInput from "../CustomInput";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
-import { useLocation } from "react-router-dom";
-import { animeListSchema } from "./ListEditor.schemas";
+import { useLocation, useNavigate } from "react-router-dom";
+import { animeListSchema, AnimeSong } from "./ListEditor.schemas";
 
 type ListEditorProps = {
   defaultListPath?: string;
 };
 
-const DEFAULT_DATA = songList.songs;
-
 function ListEditor() {
   const { defaultListPath } = useLocation().state as ListEditorProps;
 
+  const navigate = useNavigate();
+
   const [author, setAuthor] = useState("");
-  const [data, setData] = useState(() => [...DEFAULT_DATA]);
+  const [data, setData] = useState<AnimeSong[]>([]);
   const [listPath, setListPath] = useState(defaultListPath);
 
   const handleInputSaveAsClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -50,6 +49,11 @@ function ListEditor() {
     console.log("data", data);
     console.log("author", author);
     console.log("listPath", listPath);
+  };
+
+  const handleCancelClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    navigate("/", { state: { defaultListPath } });
   };
 
   return (
@@ -94,7 +98,9 @@ function ListEditor() {
 
       <div className="flex flex-row-reverse gap-5">
         <Button onClick={(e) => handleSaveAndQuit(e)}>Save and quit</Button>
-        <Button variant={"secondary"}>Cancel</Button>
+        <Button variant={"secondary"} onClick={handleCancelClick}>
+          Cancel
+        </Button>
       </div>
     </div>
   );

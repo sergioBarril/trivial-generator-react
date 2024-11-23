@@ -7,10 +7,17 @@ import newIcon from "../assets/icons/new.png";
 import { Label } from "./ui/Label";
 import { useEffect, useState } from "react";
 import CustomInput from "./CustomInput";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+
+type MainMenuProps = {
+  defaultListPath?: string;
+};
 
 function MainMenu() {
-  const [listFilePath, setListFilePath] = useState("");
+  const defaultState = useLocation().state as MainMenuProps | null;
+  const defaultListPath = defaultState?.defaultListPath || "";
+
+  const [listFilePath, setListFilePath] = useState(defaultListPath);
   const [outputDir, setOutputDir] = useState("");
 
   const navigate = useNavigate();

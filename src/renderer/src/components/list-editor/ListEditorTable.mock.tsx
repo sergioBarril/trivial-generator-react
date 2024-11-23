@@ -1,18 +1,6 @@
-export type Song = {
-  anime: string;
-  oped: "Opening" | "Ending" | "OST";
-  band: string;
-  name: string;
-  difficulty?: "easy" | "normal" | "hard";
-  link: string;
-};
+import { AnimeSongList } from "./ListEditor.schemas";
 
-export type SongList = {
-  author: string;
-  songs: Song[];
-};
-
-export const songList: SongList = {
+export const songList: AnimeSongList = {
   author: "Tropped",
   songs: [
     {
