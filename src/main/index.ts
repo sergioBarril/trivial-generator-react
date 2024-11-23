@@ -83,3 +83,20 @@ ipcMain.on("dialog:openDirectory", async (event) => {
     }
   }
 });
+
+ipcMain.on("dialog:saveAs", async (event) => {
+  const mainWindow = BrowserWindow.fromWebContents(event.sender)!;
+
+  const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+    filters: [
+      {
+        name: "JSON (*.json)",
+        extensions: ["json"]
+      }
+    ]
+  });
+
+  if (!canceled) {
+    mainWindow.webContents.send("dialog:listTargetPath", { path: filePath });
+  }
+});

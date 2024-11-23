@@ -1,12 +1,13 @@
 import { Route, Routes } from "react-router-dom";
 import MainMenu from "./components/MainMenu";
-import { CardWithForm } from "./components/MyCard";
+
+import ListEditor from "./components/list-editor/ListEditor";
 
 function App(): JSX.Element {
   return (
     <Routes>
       <Route path="/" element={<MainMenu />} />
-      <Route path="/card" element={<CardWithForm />} />
+      <Route path="/list-editor" element={<ListEditor />} />
     </Routes>
   );
 }

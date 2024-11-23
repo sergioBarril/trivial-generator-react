@@ -7,11 +7,20 @@ import newIcon from "../assets/icons/new.png";
 import { Label } from "./ui/Label";
 import { useEffect, useState } from "react";
 import CustomInput from "./CustomInput";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+
+type MainMenuProps = {
+  defaultListPath?: string;
+  defaultOutputDir?: string;
+};
 
 function MainMenu() {
-  const [listFilePath, setListFilePath] = useState("");
-  const [outputDir, setOutputDir] = useState("");
+  const defaultState = useLocation().state as MainMenuProps | null;
+  const defaultListPath = defaultState?.defaultListPath || "";
+  const defaultOutputDir = defaultState?.defaultOutputDir || "";
+
+  const [listFilePath, setListFilePath] = useState(defaultListPath);
+  const [outputDir, setOutputDir] = useState(defaultOutputDir);
 
   const navigate = useNavigate();
 
@@ -39,9 +48,9 @@ function MainMenu() {
 
   const handleEditListClick = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
-    // window.electron.ipcRenderer.send("list:editList", { listFilePath: listFilePath });
-    console.log("pfft");
-    navigate("/card");
+    navigate("/list-editor", {
+      state: { defaultListPath: listFilePath, defaultOutputDir: outputDir }
+    });
   };
 
   const displayedListPath = listFilePath || "No file selected";
