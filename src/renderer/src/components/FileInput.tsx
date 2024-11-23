@@ -1,13 +1,13 @@
 import React, { useRef } from "react";
 import { cn } from "@renderer/lib/utils"; // Assuming you're using some utility function for classnames
 
-interface CustomInputProps extends React.HTMLAttributes<HTMLButtonElement> {
+interface FileInputProps extends React.HTMLAttributes<HTMLButtonElement> {
   text?: string;
   onFileChange?: (event: React.ChangeEvent<HTMLInputElement>) => void;
   accept?: string;
 }
 
-const CustomInput = React.forwardRef<HTMLButtonElement, CustomInputProps>(
+const FileInput = React.forwardRef<HTMLButtonElement, FileInputProps>(
   ({ className, text = "Choose!", onFileChange, ...props }, ref) => {
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -41,6 +41,6 @@ const CustomInput = React.forwardRef<HTMLButtonElement, CustomInputProps>(
 );
 
 // Add displayName for better debugging
-CustomInput.displayName = "CustomInput";
+FileInput.displayName = "FileInput";
 
-export default CustomInput;
+export default FileInput;

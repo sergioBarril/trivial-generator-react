@@ -1,12 +1,12 @@
-import MainButton from "./MainButton";
-import MainLogo from "./MainLogo";
+import MainButton from "./index-button";
+import MainLogo from "./index-logo";
 
 import listIcon from "../assets/icons/list.png";
 import newIcon from "../assets/icons/new.png";
 
-import { Label } from "./ui/Label";
+import { Label } from "../../components/ui/Label";
 import { useEffect, useState } from "react";
-import CustomInput from "./CustomInput";
+import FileInput from "../../components/FileInput";
 import { useLocation, useNavigate } from "react-router-dom";
 
 type MainMenuProps = {
@@ -93,12 +93,12 @@ function MainMenu() {
         </div>
 
         <div className="flex flex-row justify-center gap-x-8">
-          <CustomInput
+          <FileInput
             accept="application/json"
             text="Choose a list file"
             onFileChange={handleSongFileChange}
           />
-          <CustomInput text="Choose a folder" onClick={handleInputDirectoryClick} />
+          <FileInput text="Choose a folder" onClick={handleInputDirectoryClick} />
         </div>
       </div>
       <div />

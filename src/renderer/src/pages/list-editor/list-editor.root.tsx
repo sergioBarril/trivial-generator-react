@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Label } from "../ui/Label";
-import { ListEditorTable } from "./ListEditorTable";
-import CustomInput from "../CustomInput";
-import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
+import { Label } from "../../components/ui/Label";
+import { ListEditorTable } from "./table/list-editor-table";
+import FileInput from "../../components/FileInput";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
 import { useLocation, useNavigate } from "react-router-dom";
-import { animeListSchema, AnimeSong, AnimeSongList, animeSongSchema } from "./ListEditor.schemas";
+import { animeListSchema, AnimeSong, AnimeSongList, animeSongSchema } from "./list-editor.schemas";
 
 type ListEditorProps = {
   defaultListPath?: string;
@@ -109,7 +109,7 @@ function ListEditor() {
         >
           {listPath || "No file yet"}
         </Label>
-        <CustomInput
+        <FileInput
           className="ml-5 h-9"
           accept="application/json"
           text="Choose a destination"

@@ -1,9 +1,9 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import { DataCell } from "./DataCell";
+import { DataCell } from "./data-cell";
 import { Trash2 } from "lucide-react";
-import type { ListEditorTableMeta } from "./ListEditorTable";
+import type { ListEditorTableMeta } from "./list-editor-table";
 
-import { AnimeSong } from "./ListEditor.schemas";
+import { AnimeSong } from "../list-editor.schemas";
 
 const columnHelper = createColumnHelper<AnimeSong>();
 

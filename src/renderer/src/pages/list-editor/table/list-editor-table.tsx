@@ -4,10 +4,17 @@
 import { Dispatch, LegacyRef, SetStateAction } from "react";
 
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/Table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "../../../components/ui/Table";
 
-import { columns } from "./ListEditorTable.columns";
-import { AnimeSong } from "./ListEditor.schemas";
+import { columns } from "./list-editor-table.columns";
+import { AnimeSong } from "../list-editor.schemas";
 
 type ListEditorTableProps = {
   data: Array<AnimeSong>;
