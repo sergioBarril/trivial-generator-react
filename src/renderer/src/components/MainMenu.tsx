@@ -39,8 +39,6 @@ function MainMenu() {
 
   const handleEditListClick = (event: React.MouseEvent<HTMLDivElement>) => {
     event.preventDefault();
-    // window.electron.ipcRenderer.send("list:editList", { listFilePath: listFilePath });
-    console.log("pfft");
     navigate("/list-editor");
   };
 

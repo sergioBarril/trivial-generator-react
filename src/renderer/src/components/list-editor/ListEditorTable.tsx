@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 
-import { useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/Table";
@@ -10,13 +10,12 @@ import { columns } from "./ListEditorTable.columns";
 import { Song } from "./ListEditorTable.mock";
 
 type ListEditorTableProps = {
-  defaultData: Array<Song>;
+  data: Array<Song>;
+  setData: Dispatch<SetStateAction<Song[]>>;
   className?: string;
 };
 
-export const ListEditorTable = ({ defaultData, className }: ListEditorTableProps) => {
-  const [data, setData] = useState(() => [...defaultData]);
-
+export const ListEditorTable = ({ className, data, setData }: ListEditorTableProps) => {
   const updateData = (rowIndex: number, columnId: string, value: string) => {
     setData((old) =>
       old.map((row, index) => {
