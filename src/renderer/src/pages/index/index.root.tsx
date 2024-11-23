@@ -1,8 +1,8 @@
 import MainButton from "./index-button";
 import MainLogo from "./index-logo";
 
-import listIcon from "../assets/icons/list.png";
-import newIcon from "../assets/icons/new.png";
+import listIcon from "../../assets/icons/list.png";
+import newIcon from "../../assets/icons/new.png";
 
 import { Label } from "../../components/ui/Label";
 import { useEffect, useState } from "react";
