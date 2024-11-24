@@ -10,6 +10,7 @@ import FileInput from "../../components/FileInput";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ListFile } from "@renderer/types/list.types";
 import { animeListSchema } from "@renderer/schemas/list.schemas";
+import { Button } from "@renderer/components/ui/Button";
 
 type MainMenuProps = {
   originalListPath?: string;
@@ -68,6 +69,10 @@ function MainMenu() {
     navigate("/list-editor", {
       state: { originalListPath: listFile.path, originalOutputDir: outputDir, mode }
     });
+  };
+
+  const handleGenerate = () => {
+    window.electron.ipcRenderer.send("generate:trivial", { outputDir });
   };
 
   const displayedListPath = listFile.path || "No file selected";
@@ -135,6 +140,7 @@ function MainMenu() {
             onFileChange={handleSongFileChange}
           />
           <FileInput text="Choose a folder" onClick={handleInputDirectoryClick} />
+          <Button onClick={handleGenerate}>Generate</Button>
         </div>
       </div>
       <div />

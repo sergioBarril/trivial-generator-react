@@ -3,6 +3,8 @@ import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
 
+import { renderTemplate } from "./trivial-generator/template-render";
+
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -99,4 +101,11 @@ ipcMain.on("dialog:saveAs", async (event) => {
   if (!canceled) {
     mainWindow.webContents.send("dialog:listTargetPath", { path: filePath });
   }
+});
+
+ipcMain.on("generate:trivial", async (_, body) => {
+  // const mainWindow = BrowserWindow.fromWebContents(event.sender)!;
+
+  console.log(body);
+  await renderTemplate();
 });
