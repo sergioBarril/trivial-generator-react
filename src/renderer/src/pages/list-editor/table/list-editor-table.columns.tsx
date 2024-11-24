@@ -1,8 +1,9 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { DataCell } from "./data-cell";
 
-import { AnimeSong } from "../list-editor.schemas";
 import ActionsCell from "./actions-cell";
+
+import { AnimeSong } from "@renderer/types/list.types";
 
 const columnHelper = createColumnHelper<AnimeSong>();
 
