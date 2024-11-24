@@ -12,19 +12,20 @@ import { ListFile } from "@renderer/types/list.types";
 import { animeListSchema } from "@renderer/schemas/list.schemas";
 
 type MainMenuProps = {
-  defaultListPath?: string;
-  defaultOutputDir?: string;
+  originalListPath?: string;
+  originalOutputDir?: string;
 };
 
 function MainMenu() {
-  const defaultState = useLocation().state as MainMenuProps | null;
-  const defaultListPath = defaultState?.defaultListPath || "";
-  const defaultOutputDir = defaultState?.defaultOutputDir || "";
+  const defaultState = (useLocation().state as MainMenuProps | null) || {};
 
-  const [outputDir, setOutputDir] = useState(defaultOutputDir);
+  const originalListPath = defaultState.originalListPath || "";
+  const originalOutputDir = defaultState.originalOutputDir || "";
+
+  const [outputDir, setOutputDir] = useState(originalOutputDir);
 
   const [listFile, setListFile] = useState<ListFile>({
-    path: defaultListPath,
+    path: originalListPath,
     content: { author: "", songs: [] }
   });
 
@@ -63,10 +64,9 @@ function MainMenu() {
     window.electron.ipcRenderer.send("dialog:openDirectory");
   };
 
-  const handleEditListClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    event.preventDefault();
+  const handleListEditorClick = (mode: "new" | "edit") => {
     navigate("/list-editor", {
-      state: { defaultListPath: listFile.path, defaultOutputDir: outputDir }
+      state: { originalListPath: listFile.path, originalOutputDir: outputDir, mode }
     });
   };
 
@@ -85,12 +85,16 @@ function MainMenu() {
         </div>
 
         <div className="max-w-xl m-auto flex flex-row align-center justify-center">
-          <MainButton iconUrl={newIcon} label="New List" />
+          <MainButton
+            iconUrl={newIcon}
+            label="New List"
+            onClick={() => handleListEditorClick("new")}
+          />
           <MainButton
             iconUrl={listIcon}
             label="Edit List"
             disabled={!listFile.path}
-            onClick={handleEditListClick}
+            onClick={() => handleListEditorClick("edit")}
           />
           <MainButton iconUrl={listIcon} label="Generate Trivial" disabled />
         </div>

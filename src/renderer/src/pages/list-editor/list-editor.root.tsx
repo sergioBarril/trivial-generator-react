@@ -9,8 +9,9 @@ import { animeListSchema, animeSongSchema } from "@renderer/schemas/list.schemas
 import { AnimeSong, AnimeSongList } from "@renderer/types/list.types";
 
 type ListEditorProps = {
-  defaultListPath?: string;
-  defaultOutputDir?: string;
+  originalListPath?: string;
+  originalOutputDir?: string;
+  mode: "new" | "edit";
 };
 
 function buildDefaultRow() {
@@ -18,13 +19,13 @@ function buildDefaultRow() {
 }
 
 function ListEditor() {
-  const { defaultListPath, defaultOutputDir } = useLocation().state as ListEditorProps;
+  const { originalListPath, originalOutputDir, mode } = useLocation().state as ListEditorProps;
 
   const navigate = useNavigate();
 
   const [author, setAuthor] = useState("");
   const [data, setData] = useState<AnimeSong[]>([]);
-  const [listPath, setListPath] = useState(defaultListPath);
+  const [listPath, setListPath] = useState(mode === "edit" ? originalListPath : "");
 
   const tableDivRef = useRef<HTMLTableElement>(null);
 
@@ -34,8 +35,8 @@ function ListEditor() {
   };
 
   useEffect(() => {
-    if (!defaultListPath) return;
-    const file = window.api.fs.readFileSync(defaultListPath, "utf-8").toString();
+    if (!listPath) return;
+    const file = window.api.fs.readFileSync(listPath, "utf-8").toString();
 
     const rawListObject = JSON.parse(file);
     const validatedData = animeListSchema.parse(rawListObject);
@@ -54,7 +55,9 @@ function ListEditor() {
 
   const handleCancelClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    navigate("/", { state: { defaultListPath, defaultOutputDir } });
+    navigate("/", {
+      state: { originalListPath, originalOutputDir }
+    });
   };
 
   const handleSaveAndQuitClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -68,7 +71,7 @@ function ListEditor() {
     const jsonOutput = JSON.stringify(songList, null, "\t");
     window.api.fs.writeFileSync(listPath!, jsonOutput);
 
-    navigate("/", { state: { defaultListPath: listPath, defaultOutputDir } });
+    navigate("/", { state: { originalListPath: listPath, originalOutputDir } });
   };
 
   const handleAddRowClick = (event: React.MouseEvent<HTMLButtonElement>) => {
