@@ -8,5 +8,6 @@
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "html.validate.scripts": false
+  "html.validate.scripts": false,
+  "html.validate.styles": false
 }
