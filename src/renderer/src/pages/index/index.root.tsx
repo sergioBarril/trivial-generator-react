@@ -72,7 +72,10 @@ function MainMenu() {
   };
 
   const handleGenerate = () => {
-    window.electron.ipcRenderer.send("generate:trivial", { outputDir });
+    window.electron.ipcRenderer.send("generate:trivial", {
+      outputDir,
+      listFileContent: listFile.content
+    });
   };
 
   const displayedListPath = listFile.path || "No file selected";

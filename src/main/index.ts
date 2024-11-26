@@ -106,6 +106,7 @@ ipcMain.on("dialog:saveAs", async (event) => {
 ipcMain.on("generate:trivial", async (_, body) => {
   // const mainWindow = BrowserWindow.fromWebContents(event.sender)!;
 
-  console.log(body);
-  await renderTemplate();
+  const { listFileContent, outputDir } = body;
+
+  await renderTemplate({ listFileContent, outputDir });
 });
