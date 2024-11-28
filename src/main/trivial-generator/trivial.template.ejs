@@ -1154,7 +1154,7 @@
                 <input id="volume-range" class="w-full mt-3" type="range" min="0" max="100" step="1"
                     oninput="setVolume(this.value)" />
 
-                <div id="player" class="w-0 h-0"></div>
+                <div id="player" class=""></div>
                 <audio id="audio" controls class="hidden">
                     <source id="audio-source">
                 </audio>
@@ -1208,7 +1208,7 @@
 
         const songs = <%- JSON.stringify(songs) %>;
 
-        const animeInfo = songs.reduce((acc, curr) => {acc[curr.id] = curr; return acc}, {});
+        const animeInfo = <%- JSON.stringify(animeInfo) %>;
 
         // ************
         //     MODAL
@@ -1358,6 +1358,11 @@
             firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
         }
 
+        function onError(event){
+            console.log("Error!", event.data);
+            console.error("Full event", event);
+        }
+
         function onYouTubeIframeAPIReady() {
             player = new YT.Player("player", {
                 videoId: "",
@@ -1366,6 +1371,7 @@
                 },
                 events: {
                     onStateChange: onPlayerStateChange,
+                    onError
                 },
             });
         }

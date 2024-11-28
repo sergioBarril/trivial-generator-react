@@ -5,16 +5,22 @@ import path from "path";
 
 import templatePath from "./trivial.template.ejs?asset";
 
+type AnimeSong = {
+  anime: string;
+  oped: "Opening" | "Ending" | "OST";
+  band: string;
+  name: string;
+  difficulty: "easy" | "normal" | "hard";
+  link: string;
+};
+
+type SongWithId = AnimeSong & { id: string };
+
+type AnimeInfo = Record<string, SongWithId>;
+
 type ListFileContent = {
   author: string;
-  songs: {
-    anime: string;
-    oped: "Opening" | "Ending" | "OST";
-    band: string;
-    name: string;
-    difficulty: "easy" | "normal" | "hard";
-    link: string;
-  }[];
+  songs: AnimeSong[];
 };
 
 type RenderTemplateProps = {
@@ -24,11 +30,23 @@ type RenderTemplateProps = {
 
 export async function renderTemplate({ listFileContent, outputDir }: RenderTemplateProps) {
   // Data to pass to the template
-  const data = {
-    author: listFileContent.author,
-    songs: listFileContent.songs
-  };
+  const { songs, author } = listFileContent;
 
+  const songsWithId: SongWithId[] = songs.map((song) => ({
+    ...song,
+    id: song.link.split("/").at(-1)!
+  }));
+
+  const animeInfo: AnimeInfo = songsWithId.reduce((acc, curr) => {
+    acc[curr.id] = curr;
+    return acc;
+  }, {});
+
+  const data = {
+    author,
+    songs: songsWithId,
+    animeInfo
+  };
   // Render the template with the data
   const renderedHtml = await ejs.renderFile(templatePath, data);
 

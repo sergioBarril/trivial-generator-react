@@ -13,5 +13,8 @@ declare global {
   interface Window {
     electron: ElectronAPI;
     api: typeof api;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    YT: any;
+    onYouTubeIframeAPIReady: () => void;
   }
 }

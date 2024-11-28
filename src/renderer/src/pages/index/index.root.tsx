@@ -11,6 +11,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ListFile } from "@renderer/types/list.types";
 import { animeListSchema } from "@renderer/schemas/list.schemas";
 import { Button } from "@renderer/components/ui/Button";
+import useYoutubeEmbed from "@renderer/hooks/useYoutubeEmbed";
 
 type MainMenuProps = {
   originalListPath?: string;
@@ -29,6 +30,8 @@ function MainMenu() {
     path: originalListPath,
     content: { author: "", songs: [] }
   });
+
+  const { checkCopyright, component: youtubeEmbed } = useYoutubeEmbed();
 
   const navigate = useNavigate();
 
@@ -76,6 +79,38 @@ function MainMenu() {
       outputDir,
       listFileContent: listFile.content
     });
+  };
+
+  const handleCheckCopyright = async () => {
+    // const songIds = listFile.content.songs.map((song) => song.link.split("/").at(-1)!);
+    const songIds = [
+      "shVieNur1YA",
+      "IqWR816VjbE",
+      "6lnnPnr_0SU",
+      "QKgcYyGQXpk",
+      "qnlr9W8k3bg",
+      "vkVXMrst89I",
+      "9eKn2l8utEA",
+      "i_AvWYbogG0",
+      "F_f7QVamCMc",
+      "h_DYTjGalqY",
+      "Zuft8Kix-Sg",
+      "iyUuaLBuvqU",
+      "UQKz_MyQSvE",
+      "34TxpnCJ-ZA",
+      "iZz6atpGoxA",
+      "qNAUKWOaicU"
+    ];
+    // const songIds = ["vkVXMrst89I"];
+
+    const results = {};
+
+    for (const songId of songIds) {
+      const isValid = await checkCopyright(songId);
+      results[songId] = isValid;
+    }
+
+    console.log(JSON.stringify(results));
   };
 
   const displayedListPath = listFile.path || "No file selected";
@@ -144,9 +179,12 @@ function MainMenu() {
           />
           <FileInput text="Choose a folder" onClick={handleInputDirectoryClick} />
           <Button onClick={handleGenerate}>Generate</Button>
+          <Button onClick={handleCheckCopyright}>Check</Button>
         </div>
       </div>
       <div />
+
+      {youtubeEmbed}
     </div>
   );
 }
