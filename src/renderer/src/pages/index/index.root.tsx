@@ -31,7 +31,7 @@ function MainMenu() {
     content: { author: "", songs: [] }
   });
 
-  const { checkCopyright } = useYoutubeEmbed();
+  const { checkCopyright, component } = useYoutubeEmbed();
 
   const navigate = useNavigate();
 
@@ -74,10 +74,28 @@ function MainMenu() {
     });
   };
 
-  const handleGenerate = () => {
+  const getCopyrightedSongs = async () => {
+    const songIds = listFile.content.songs.map((song) => song.link.split("/").at(-1)!);
+
+    const results = new Map<string, boolean>();
+
+    for (const songId of songIds) {
+      const isValid = await checkCopyright(songId);
+      results.set(songId, isValid);
+    }
+
+    console.log("Finished getting copyright songs");
+
+    return results;
+  };
+
+  const handleGenerate = async () => {
+    const copyrightMap = await getCopyrightedSongs();
+
     window.electron.ipcRenderer.send("generate:trivial", {
       outputDir,
-      listFileContent: listFile.content
+      listFileContent: listFile.content,
+      copyrightMap
     });
   };
 
@@ -164,6 +182,7 @@ function MainMenu() {
         </div>
       </div>
       <div />
+      {component}
     </div>
   );
 }

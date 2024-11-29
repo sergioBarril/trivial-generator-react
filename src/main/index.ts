@@ -104,10 +104,36 @@ ipcMain.on("dialog:saveAs", async (event) => {
   }
 });
 
-ipcMain.on("generate:trivial", async (_, body) => {
-  // const mainWindow = BrowserWindow.fromWebContents(event.sender)!;
+export type AnimeSong = {
+  anime: string;
+  oped: "Opening" | "Ending" | "OST";
+  band: string;
+  name: string;
+  difficulty: "easy" | "normal" | "hard";
+  link: string;
+};
 
-  const { listFileContent, outputDir } = body;
+export type SongWithId = AnimeSong & { id: string };
 
-  await renderTemplate({ listFileContent, outputDir });
+export type ListFileContent = {
+  author: string;
+  songs: AnimeSong[];
+};
+
+export type GenerateTrivialBody = {
+  copyrightMap: Map<string, boolean>;
+  listFileContent: ListFileContent;
+  outputDir: string;
+};
+
+ipcMain.on("generate:trivial", async (_, body: GenerateTrivialBody) => {
+  console.log("Starting trivial generation backend");
+  const { listFileContent, outputDir, copyrightMap } = body;
+
+  const songs: SongWithId[] = listFileContent.songs.map((song) => ({
+    ...song,
+    id: song.link.split("/").at(-1)!
+  }));
+
+  await renderTemplate({ songs, author: listFileContent.author, outputDir, copyrightMap });
 });

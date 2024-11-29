@@ -5,48 +5,34 @@ import path from "path";
 
 import templatePath from "./trivial.template.ejs?asset";
 
-type AnimeSong = {
-  anime: string;
-  oped: "Opening" | "Ending" | "OST";
-  band: string;
-  name: string;
-  difficulty: "easy" | "normal" | "hard";
-  link: string;
-};
+import trivialCssPath from "./trivial.css.ejs?asset";
 
-type SongWithId = AnimeSong & { id: string };
+import { SongWithId } from "..";
 
-type AnimeInfo = Record<string, SongWithId>;
-
-type ListFileContent = {
+export type RenderTemplateProps = {
+  songs: SongWithId[];
+  copyrightMap: Map<string, boolean>;
   author: string;
-  songs: AnimeSong[];
-};
-
-type RenderTemplateProps = {
-  listFileContent: ListFileContent;
   outputDir: string;
 };
 
-export async function renderTemplate({ listFileContent, outputDir }: RenderTemplateProps) {
-  // Data to pass to the template
-  const { songs, author } = listFileContent;
+export type SongWithIdAndCopyright = SongWithId & { isEmbeddable: boolean };
+export type AnimeInfo = Record<string, SongWithIdAndCopyright>;
 
-  const songsWithId: SongWithId[] = songs.map((song) => ({
-    ...song,
-    id: song.link.split("/").at(-1)!
-  }));
-
-  const animeInfo: AnimeInfo = songsWithId.reduce((acc, curr) => {
+export async function renderTemplate({
+  songs,
+  author,
+  copyrightMap,
+  outputDir
+}: RenderTemplateProps) {
+  const animeInfo: AnimeInfo = songs.reduce((acc, curr) => {
     acc[curr.id] = curr;
+    acc[curr.id].isEmbeddable = copyrightMap.get(curr.id);
     return acc;
   }, {});
 
-  const data = {
-    author,
-    songs: songsWithId,
-    animeInfo
-  };
+  const data = { author, songs, animeInfo, trivialCssPath };
+
   // Render the template with the data
   const renderedHtml = await ejs.renderFile(templatePath, data);
 

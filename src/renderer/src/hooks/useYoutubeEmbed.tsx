@@ -62,7 +62,7 @@ const useYoutubeEmbed = () => {
     };
   }, []);
 
-  const component = <div id="player" ref={playerRef}></div>;
+  const component = <div id="player" className="w-0 h-0" ref={playerRef}></div>;
 
   return { component, player, checkCopyright };
 };
