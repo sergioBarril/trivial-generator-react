@@ -31,7 +31,7 @@ function MainMenu() {
     content: { author: "", songs: [] }
   });
 
-  const { checkCopyright, component: youtubeEmbed } = useYoutubeEmbed();
+  const { checkCopyright } = useYoutubeEmbed();
 
   const navigate = useNavigate();
 
@@ -82,26 +82,7 @@ function MainMenu() {
   };
 
   const handleCheckCopyright = async () => {
-    // const songIds = listFile.content.songs.map((song) => song.link.split("/").at(-1)!);
-    const songIds = [
-      "shVieNur1YA",
-      "IqWR816VjbE",
-      "6lnnPnr_0SU",
-      "QKgcYyGQXpk",
-      "qnlr9W8k3bg",
-      "vkVXMrst89I",
-      "9eKn2l8utEA",
-      "i_AvWYbogG0",
-      "F_f7QVamCMc",
-      "h_DYTjGalqY",
-      "Zuft8Kix-Sg",
-      "iyUuaLBuvqU",
-      "UQKz_MyQSvE",
-      "34TxpnCJ-ZA",
-      "iZz6atpGoxA",
-      "qNAUKWOaicU"
-    ];
-    // const songIds = ["vkVXMrst89I"];
+    const songIds = listFile.content.songs.map((song) => song.link.split("/").at(-1)!);
 
     const results = {};
 
@@ -183,8 +164,6 @@ function MainMenu() {
         </div>
       </div>
       <div />
-
-      {youtubeEmbed}
     </div>
   );
 }

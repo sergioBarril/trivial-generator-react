@@ -9,6 +9,7 @@ const useYoutubeEmbed = () => {
   const clearEvents = () => {
     player.removeEventListener("onError");
     player.removeEventListener("onStateChange");
+    player.stopVideo();
   };
 
   const checkCopyright = (songId) => {
@@ -21,7 +22,6 @@ const useYoutubeEmbed = () => {
         }
 
         console.log(`${songId} returning true`, event.data);
-        // player.stopVideo();
         resolve();
       };
 
