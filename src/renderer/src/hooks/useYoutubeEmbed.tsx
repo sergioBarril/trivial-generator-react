@@ -12,7 +12,7 @@ const useYoutubeEmbed = () => {
     player.stopVideo();
   };
 
-  const checkCopyright = (songId) => {
+  const checkCopyright = async (songId: string) => {
     return new Promise<void>((resolve, reject) => {
       const handleError = reject;
       const handleStateChanged = (event) => {
@@ -51,14 +51,6 @@ const useYoutubeEmbed = () => {
         width: "640",
         videoId: "",
         playerVars: { playsinline: 1 }
-        // events: {
-        //   onReady: (event) => event.target.playVideo(),
-        //   onStateChange: (event) => {
-        //     if (event.data === window.YT.PlayerState.PLAYING) {
-        //       setTimeout(() => event.target.stopVideo(), 6000);
-        //     }
-        //   }
-        // }
       });
 
       setPlayer(newPlayer);
