@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
 
 import { renderTemplate } from "./trivial-generator/template-render";
+import { downloadAudios } from "./trivial-generator/youtube-downloader";
 
 function createWindow(): void {
   // Create the browser window.
@@ -135,5 +136,6 @@ ipcMain.on("generate:trivial", async (_, body: GenerateTrivialBody) => {
     id: song.link.split("/").at(-1)!
   }));
 
+  await downloadAudios({ outputDir, embeddableMap });
   await renderTemplate({ songs, author: listFileContent.author, outputDir, embeddableMap });
 });
