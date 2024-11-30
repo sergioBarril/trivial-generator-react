@@ -121,19 +121,19 @@ export type ListFileContent = {
 };
 
 export type GenerateTrivialBody = {
-  copyrightMap: Map<string, boolean>;
+  embeddableMap: Map<string, boolean>;
   listFileContent: ListFileContent;
   outputDir: string;
 };
 
 ipcMain.on("generate:trivial", async (_, body: GenerateTrivialBody) => {
   console.log("Starting trivial generation backend");
-  const { listFileContent, outputDir, copyrightMap } = body;
+  const { listFileContent, outputDir, embeddableMap } = body;
 
   const songs: SongWithId[] = listFileContent.songs.map((song) => ({
     ...song,
     id: song.link.split("/").at(-1)!
   }));
 
-  await renderTemplate({ songs, author: listFileContent.author, outputDir, copyrightMap });
+  await renderTemplate({ songs, author: listFileContent.author, outputDir, embeddableMap });
 });

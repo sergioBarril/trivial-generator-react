@@ -12,7 +12,7 @@ const useYoutubeEmbed = () => {
     player.stopVideo();
   };
 
-  const checkCopyright = async (songId: string) => {
+  const isVideoEmbeddable = async (songId: string) => {
     return new Promise<void>((resolve, reject) => {
       const handleError = reject;
       const handleStateChanged = (event) => {
@@ -64,7 +64,7 @@ const useYoutubeEmbed = () => {
 
   const component = <div id="player" className="w-0 h-0" ref={playerRef}></div>;
 
-  return { component, player, checkCopyright };
+  return { component, player, isVideoEmbeddable };
 };
 
 export default useYoutubeEmbed;

@@ -11,7 +11,7 @@ import { SongWithId } from "..";
 
 export type RenderTemplateProps = {
   songs: SongWithId[];
-  copyrightMap: Map<string, boolean>;
+  embeddableMap: Map<string, boolean>;
   author: string;
   outputDir: string;
 };
@@ -22,12 +22,12 @@ export type AnimeInfo = Record<string, SongWithIdAndCopyright>;
 export async function renderTemplate({
   songs,
   author,
-  copyrightMap,
-  outputDir
+  outputDir,
+  embeddableMap
 }: RenderTemplateProps) {
   const animeInfo: AnimeInfo = songs.reduce((acc, curr) => {
     acc[curr.id] = curr;
-    acc[curr.id].isEmbeddable = copyrightMap.get(curr.id);
+    acc[curr.id].isEmbeddable = embeddableMap.get(curr.id);
     return acc;
   }, {});
 

@@ -98,7 +98,7 @@
 
     <script>
         let currentID = "";
-        let currentCR = null;
+        let currentEmbeddable = null;
         let player;
         let interval;
 
@@ -235,10 +235,10 @@
             const songPanel = document.getElementById(songID);
 
             currentID = songID;
-            currentCR = !animeInfo[songID].isEmbeddable;
+            currentEmbeddable = animeInfo[songID].isEmbeddable;
 
             setFocus(songPanel);
-            if (!currentCR) {
+            if (currentEmbeddable) {
                 player.loadVideoById(songID);
                 player.playVideo();
             } else {
@@ -272,13 +272,17 @@
         }
 
         function getDuration() {
-            if (currentCR) return audio.duration;
-            else return player.getDuration();
+            if (currentEmbeddable) {
+                return player.getDuration();
+            }            
+            return audio.duration;
         }
 
         function getTime() {
-            if (currentCR) return audio.currentTime;
-            else return player.getCurrentTime();
+            if (currentEmbeddable) {
+                return player.getCurrentTime();
+            }
+            return audio.currentTime;            
         }
 
         function onPlay(event) {
@@ -302,10 +306,12 @@
         }
 
         function stop() {
-            if (currentCR) {
+            if (currentEmbeddable) {
+                player.stopVideo();
+            } else {
                 audio.pause();
                 audio.currentTime = 0;
-            } else player.stopVideo();
+            }
 
             if (interval) {
                 clearInterval(interval);
@@ -354,7 +360,7 @@
         function togglePause() {
             if (currentID == "") return;
 
-            if (currentCR) {
+            if (!currentEmbeddable) {
                 if (audio.paused) audio.play();
                 else audio.pause();
                 return;
@@ -396,7 +402,7 @@
 
             stop();
             currentID = "";
-            currentCR = null;
+            currentEmbeddable = null;
         }
 
         function reveal() {

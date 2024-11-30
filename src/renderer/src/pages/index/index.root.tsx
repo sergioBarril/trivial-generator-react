@@ -31,7 +31,7 @@ function MainMenu() {
     content: { author: "", songs: [] }
   });
 
-  const { checkCopyright, component } = useYoutubeEmbed();
+  const { isVideoEmbeddable, component } = useYoutubeEmbed();
 
   const navigate = useNavigate();
 
@@ -74,13 +74,18 @@ function MainMenu() {
     });
   };
 
-  const getCopyrightedSongs = async () => {
+  /**
+   * Check if the songs are embeddable in the HTML
+   *
+   * @returns A map that assigns to each songId true iff it's embeddable.
+   */
+  const checkEmbeddability = async () => {
     const songIds = listFile.content.songs.map((song) => song.link.split("/").at(-1)!);
 
     const results = new Map<string, boolean>();
 
     for (const songId of songIds) {
-      const isValid = await checkCopyright(songId);
+      const isValid = await isVideoEmbeddable(songId);
       results.set(songId, isValid);
     }
 
@@ -90,26 +95,13 @@ function MainMenu() {
   };
 
   const handleGenerate = async () => {
-    const copyrightMap = await getCopyrightedSongs();
+    const embeddableMap = await checkEmbeddability();
 
     window.electron.ipcRenderer.send("generate:trivial", {
       outputDir,
       listFileContent: listFile.content,
-      copyrightMap
+      embeddableMap
     });
-  };
-
-  const handleCheckCopyright = async () => {
-    const songIds = listFile.content.songs.map((song) => song.link.split("/").at(-1)!);
-
-    const results = {};
-
-    for (const songId of songIds) {
-      const isValid = await checkCopyright(songId);
-      results[songId] = isValid;
-    }
-
-    console.log(JSON.stringify(results));
   };
 
   const displayedListPath = listFile.path || "No file selected";
@@ -178,7 +170,6 @@ function MainMenu() {
           />
           <FileInput text="Choose a folder" onClick={handleInputDirectoryClick} />
           <Button onClick={handleGenerate}>Generate</Button>
-          <Button onClick={handleCheckCopyright}>Check</Button>
         </div>
       </div>
       <div />
