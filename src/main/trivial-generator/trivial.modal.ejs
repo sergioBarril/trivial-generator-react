@@ -1,0 +1,35 @@
+<script>
+    const animeInfo = <%- JSON.stringify(animeInfo) %>;
+
+    // ************
+    //     MODAL
+    // ************
+    const modal = document.getElementById("modal-overlay");
+    const btnInfo = document.getElementById("btn-info");
+    const btnModal = document.getElementById("ok-btn");
+
+    const modalAnime = document.getElementById("modal-anime");
+    const modalOped = document.getElementById("modal-oped");
+    const modalBand = document.getElementById("modal-band");
+    const modalSong = document.getElementById("modal-song");
+
+    btnModal.onclick = () => (modal.style.display = "none");
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    };
+
+    function infoModal(currentId) {
+        if (currentId == "") return;
+        
+        modal.style.display = "block";
+
+        const song = animeInfo[currentId];
+
+        modalAnime.innerHTML = song.anime;
+        modalOped.innerHTML = song.oped;
+        modalBand.innerHTML = song.band;
+        modalSong.innerHTML = song.name;
+    }
+</script>

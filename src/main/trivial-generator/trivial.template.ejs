@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <%- include(assetPaths.css) %>
+    <title>Anime Trivial</title>
+</head>
+
+<body class="bg-sky-800 overflow-y-hidden">
+    <!--Overlay Effect-->
+    <div class="fixed hidden inset-0 z-10 bg-gray-600 bg-opacity-50 h-full w-full" id="modal-overlay">
+
+        <!-- Modal Content -->
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="font-mono mt-3">
+                <h3 class="text-lg text-center leading-6 font-medium text-gray-900">Información extra:</h3>
+                <div class="mt-2 px-7 py-3">
+                    <ul>
+                        <li><span class="font-bold">Anime: </span><span id="modal-anime"></span></li>
+                        <li><span class="font-bold">Tipo: </span><span id="modal-oped"></span></li>
+                        <li><span class="font-bold">Banda: </span><span id="modal-band"></span></li>
+                        <li><span class="font-bold">Canción: </span><span id="modal-song"></span></li>
+                    </ul>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="ok-btn"
+                        class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-300">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <h1 class="text-white font-bold text-2xl ml-5 mt-5">Anime Trivial</h1>
+    <div class="flex justify-around w-full py-0 px-5 mt-5 gap-5 overflow-y-scroll">
+        <div id="leftPanel" class="w-[250px] px-0 mr-1 flex-shrink-0 sticky top-0">
+            <div id="div-controls" class="border rounded border-black w-full px-2 mb-6 h-32 bg-sky-300">
+                <div id="time" class="pt-1 text-lg font-bold">
+                    <span id="current-time" class="ml-1">-:-</span> <span id="total-duration"
+                        class="mr-1 float-right">-:-</span>
+                </div>
+                <div id="progressBar" class="w-full h-3 bg-white mt-[1px] rounded">
+                    <div id="progressBarCurrent" class="w-0 h-full bg-red-600 rounded"></div>
+                </div>
+                <div id="div-buttons" class="flex mt-2 justify-evenly">
+                    <button id="btn-play" onclick="togglePause();">▶</button>
+                    <button id="btn-stop" onclick="stop();">⏹</button>
+                    <button id="btn-reveal" onclick="reveal();">🔎</button>
+                    <button id="btn-info" onclick="infoModal(currentId);">ℹ️</button>
+                </div>
+                <input id="volume-range" class="w-full mt-3" type="range" min="0" max="100" step="1"
+                    oninput="setVolume(this.value)" />
+
+                <div id="player" class="w-0 h-0"></div>
+                <audio id="audio" controls class="hidden" onplay="onPlay();" onpause="onPause()">
+                    <source id="audio-source">
+                </audio>
+            </div>
+
+            <div id="div-scoreboard" class="w-full">
+                <button
+                    class="w-28 p-1 flex mx-auto border border-black shadow-sm text-sm font-medium rounded-md text-white bg-teal-500 hover:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    onclick="addPlayer()">
+                    <span class="w-full text-center">Add player</span>
+                </button>
+
+                <div id="players" class="w-full mt-2">
+
+                </div>
+            </div>
+        </div>
+        <div id="mainPanel" class="w-[88%] px-4 mb-3 h-[80vh]">
+            <div id="song-panel-div" class="flex justify-start w-full flex-wrap gap-5">
+                <% 
+                const DIFFICULTY_COLORS = {
+                    easy: "border-green-900",
+                    normal: "border-sky-900",
+                    hard: "border-red-900"
+                };
+                    songs.forEach((song, index) => { %>
+                        <div id="<%= song.id %>"  data-embeddable="<%= song.isEmbeddable %>"  data-difficulty="<%= song.difficulty %>" name="song-panel"
+                    class="border-4 <%= DIFFICULTY_COLORS[song.difficulty] %> xl:basis-56 lg:basis-52 bg-no-repeat bg-center bg-cover relative basis-60 flex-shrink-0 h-[10rem] pl-1
+                        <%= song.isError ? " bg-black" : "" %>" onclick="toggleAudio(this.id);">
+                            <span class="font-bold"><%= index + 1 %></span>
+                            <span id="anime-<%=song.id%>" class="hidden font-mono absolute bottom-0 left-0 px-1 w-full bg-black text-white">
+                                <%= song.anime %>
+                            </span>
+                        </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+
+
+    <%- include(assetPaths.youtubeScript) %>
+    <script>
+        var currentId = "";
+        let currentEmbeddable = null;        
+        let interval;
+        
+        const audio = document.getElementById("audio");
+        const audioSource = document.getElementById("audio-source");
+        const btnPlay = document.getElementById("btn-play");
+        
+        const songs = <%- JSON.stringify(songs) %>;
+        
+        const DIFFICULTY_CLASSES = {
+            easy: "border-green-900",
+            normal: "border-sky-900",
+            hard: "border-red-900",
+        };
+
+        function toggleAudio(songId) {
+            if (songId == currentId) {
+                return togglePause();
+            }
+            removeFocus(currentId);
+            setFocus(songId);
+            
+            const songPanel = document.getElementById(songId);            
+            currentEmbeddable = songPanel.dataset.isEmbeddable === "true";
+            
+            if (currentEmbeddable) {
+                player.loadVideoById(songId);
+                player.playVideo();
+            } else {                
+                audioSource.src = "./offline/" + songId + ".mp3";
+                audio.load();
+                audio.addEventListener("loadedmetadata", () => audio.play());
+            }
+        }
+
+        function getDuration() {
+            if (currentEmbeddable) {
+                return player.getDuration();
+            }            
+            return audio.duration;
+        }
+
+        function getTime() {
+            if (currentEmbeddable) {
+                return player.getCurrentTime();
+            }
+            return audio.currentTime;            
+        }
+
+        function onPlay(event) {
+            const songDuration = getDuration();
+
+            interval = setInterval(() => {
+                const time = getTime();
+                const playerTimeDifference = (time / songDuration) * 100;
+                progress(playerTimeDifference);
+                const timeCurrent =
+                    Math.floor(time / 60) + ":" + ("0" + Math.floor(time % 60)).slice(-2);
+                document.getElementById("current-time").innerHTML = timeCurrent;
+            }, 600);
+            const timeTotal =
+                Math.floor(songDuration / 60) +
+                ":" +
+                ("0" + Math.floor(songDuration % 60)).slice(-2);
+            document.getElementById("total-duration").innerHTML = timeTotal;
+
+            btnPlay.textContent = "⏸";
+        }
+
+        function stop() {
+            if (currentEmbeddable) {
+                player.stopVideo();
+            } else {
+                audio.pause();
+                audio.currentTime = 0;
+            }
+
+            if (interval) {
+                clearInterval(interval);
+                interval = null;
+            }
+
+            progress(0);
+            document.getElementById("current-time").innerHTML = "0:00";
+            btnPlay.textContent = "▶";
+        }
+
+        function onPause() {
+            btnPlay.textContent = "▶";
+
+            if (interval) {
+                clearInterval(interval);
+                interval = null;
+            }
+        }
+
+        function progress(percent) {
+            const progressBar = document.getElementById("progressBar");
+            const progressBarWidth = Math.floor(
+                (percent * progressBar.offsetWidth) / 100
+            );
+            document.getElementById("progressBarCurrent").style.width =
+                progressBarWidth + "px";
+        }
+
+        function togglePause() {
+            if (currentId == "") return;
+
+            if (!currentEmbeddable) {
+                if (audio.paused) audio.play();
+                else audio.pause();
+                return;
+            }
+
+            if (player.getPlayerState() == YT.PlayerState.PLAYING) {
+                player.pauseVideo();
+            } else {
+                player.playVideo();
+            }
+        }
+
+        function setFocus(songId) {
+            const songPanel = document.getElementById(songId);
+
+            songPanel.classList.remove("border-4");
+            songPanel.classList.add("border-8");
+
+            const difficulty = songPanel.dataset.difficulty;
+            const borderClass = DIFFICULTY_CLASSES[difficulty];
+
+            songPanel.classList.remove(borderClass);
+            songPanel.classList.add("border-red-600");
+
+            currentId = songId;
+        }
+
+        function removeFocus(songId) {
+            if (!songId) {
+                return;
+            }
+            
+            const songDiv = document.getElementById(songId)
+            
+            songDiv.classList.remove("border-8");
+            songDiv.classList.add("border-4");
+
+            const difficulty = songDiv.dataset.difficulty;
+            const borderClass = DIFFICULTY_CLASSES[difficulty];
+
+            songDiv.classList.remove("border-red-600");
+            songDiv.classList.add(borderClass);
+
+            stop();
+            currentId = "";
+            currentEmbeddable = null;
+        }
+
+        function reveal() {
+            if (currentId == "") return;
+
+            const div = document.getElementById(currentId);
+            const answer = document.getElementById(`anime-${currentId}`);
+
+            answer.classList.remove("hidden");
+
+            div.style.backgroundImage =
+                "url('http://img.youtube.com/vi/" + currentId + "/0.jpg')";
+            removeFocus(currentId);
+        }
+
+        function setVolume(percent) {
+            player.setVolume(percent);
+            audio.volume = percent / 100;
+        }
+    </script>
+    <%- include(assetPaths.playerScript) %>
+    <%- include(assetPaths.modalScript, { animeInfo: animeInfo}) %>
+</body>
+
+</html>

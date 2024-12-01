@@ -10,6 +10,8 @@ import FileInput from "../../components/FileInput";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ListFile } from "@renderer/types/list.types";
 import { animeListSchema } from "@renderer/schemas/list.schemas";
+import { Button } from "@renderer/components/ui/Button";
+import useYoutubeEmbed from "@renderer/hooks/useYoutubeEmbed";
 
 type MainMenuProps = {
   originalListPath?: string;
@@ -28,6 +30,8 @@ function MainMenu() {
     path: originalListPath,
     content: { author: "", songs: [] }
   });
+
+  const { isVideoEmbeddable, component } = useYoutubeEmbed();
 
   const navigate = useNavigate();
 
@@ -67,6 +71,36 @@ function MainMenu() {
   const handleListEditorClick = (mode: "new" | "edit") => {
     navigate("/list-editor", {
       state: { originalListPath: listFile.path, originalOutputDir: outputDir, mode }
+    });
+  };
+
+  /**
+   * Check if the songs are embeddable in the HTML
+   *
+   * @returns A map that assigns to each songId true iff it's embeddable.
+   */
+  const checkEmbeddability = async () => {
+    const songIds = listFile.content.songs.map((song) => song.link.split("/").at(-1)!);
+
+    const results = new Map<string, boolean>();
+
+    for (const songId of songIds) {
+      const isValid = await isVideoEmbeddable(songId);
+      results.set(songId, isValid);
+    }
+
+    console.log("Finished getting copyright songs");
+
+    return results;
+  };
+
+  const handleGenerate = async () => {
+    const embeddableMap = await checkEmbeddability();
+
+    window.electron.ipcRenderer.send("generate:trivial", {
+      outputDir,
+      listFileContent: listFile.content,
+      embeddableMap
     });
   };
 
@@ -135,9 +169,11 @@ function MainMenu() {
             onFileChange={handleSongFileChange}
           />
           <FileInput text="Choose a folder" onClick={handleInputDirectoryClick} />
+          <Button onClick={handleGenerate}>Generate</Button>
         </div>
       </div>
       <div />
+      {component}
     </div>
   );
 }
