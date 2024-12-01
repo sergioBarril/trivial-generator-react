@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <%- include(trivialCssPath) %>
+    <%- include(assetPaths.css) %>
     <title>Anime Trivial</title>
 </head>
 
@@ -50,13 +50,13 @@
                     <button id="btn-play" onclick="togglePause();">▶</button>
                     <button id="btn-stop" onclick="stop();">⏹</button>
                     <button id="btn-reveal" onclick="reveal();">🔎</button>
-                    <button id="btn-info" onclick="infoModal();">ℹ️</button>
+                    <button id="btn-info" onclick="infoModal(currentId);">ℹ️</button>
                 </div>
                 <input id="volume-range" class="w-full mt-3" type="range" min="0" max="100" step="1"
                     oninput="setVolume(this.value)" />
 
                 <div id="player" class="w-0 h-0"></div>
-                <audio id="audio" controls class="hidden">
+                <audio id="audio" controls class="hidden" onplay="onPlay();" onpause="onPause()">
                     <source id="audio-source">
                 </audio>
             </div>
@@ -82,7 +82,7 @@
                     hard: "border-red-900"
                 };
                     songs.forEach((song, index) => { %>
-                        <div id="<%= song.id %>" data-difficulty="<%= song.difficulty %>" name="song-panel"
+                        <div id="<%= song.id %>"  data-embeddable="<%= song.isEmbeddable %>"  data-difficulty="<%= song.difficulty %>" name="song-panel"
                     class="border-4 <%= DIFFICULTY_COLORS[song.difficulty] %> xl:basis-56 lg:basis-52 bg-no-repeat bg-center bg-cover relative basis-60 flex-shrink-0 h-[10rem] pl-1
                         <%= song.isError ? " bg-black" : "" %>" onclick="toggleAudio(this.id);">
                             <span class="font-bold"><%= index + 1 %></span>
@@ -96,179 +96,42 @@
     </div>
 
 
+    <%- include(assetPaths.youtubeScript) %>
     <script>
-        let currentID = "";
-        let currentEmbeddable = null;
-        let player;
+        var currentId = "";
+        let currentEmbeddable = null;        
         let interval;
-
+        
         const audio = document.getElementById("audio");
         const audioSource = document.getElementById("audio-source");
-
         const btnPlay = document.getElementById("btn-play");
-
+        
         const songs = <%- JSON.stringify(songs) %>;
-
-        const animeInfo = <%- JSON.stringify(animeInfo) %>;
-
-        // ************
-        //     MODAL
-        // ************
-        const modal = document.getElementById("modal-overlay");
-        const btnInfo = document.getElementById("btn-info");
-        const btnModal = document.getElementById("ok-btn");
-
-        const modalAnime = document.getElementById("modal-anime");
-        const modalOped = document.getElementById("modal-oped");
-        const modalBand = document.getElementById("modal-band");
-        const modalSong = document.getElementById("modal-song");
-
-        btnModal.onclick = () => (modal.style.display = "none");
-
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
+        
+        const DIFFICULTY_CLASSES = {
+            easy: "border-green-900",
+            normal: "border-sky-900",
+            hard: "border-red-900",
         };
 
-        function infoModal() {
-            if (currentID == "") return;
-            modal.style.display = "block";
-
-            const song = animeInfo[currentID];
-
-            modalAnime.innerHTML = song.anime;
-            modalOped.innerHTML = song.oped;
-            modalBand.innerHTML = song.band;
-            modalSong.innerHTML = song.name;
-        }
-
-        function getPlayerNumber(element) {
-            return element.id.split("-").at(-1);
-        }
-
-        function addPlayer() {
-            const playersDiv = document.getElementById("players");
-
-            const players = document.getElementsByName("player");
-            let newPlayerNumber = 0;
-            if (players.length > 0) {
-                newPlayerNumber =
-                    parseInt(Array.from(players).at(-1).id.split("-").at(-1)) + 1;
-            }
-
-            const newPlayer = `<div id="player-${newPlayerNumber}" name="player" class="flex justify-start border gap-0 border-black rounded w-full bg-sky-300 p-2">
-                        <div class="w-9/12" id="div-name-${newPlayerNumber}">
-                        <input id="name-${newPlayerNumber}" type="text" placeholder="New player" class="px-1 bg-transparent w-full" onkeydown="enterName(event);">
-                        </div>
-                        <div>
-                        <button onclick="confirmPlayer(this);" id="confirm-player-${newPlayerNumber}">✅</button>
-                        <button onclick="deletePlayer(this);" id="delete-player-${newPlayerNumber}">❌</button>
-                        </div>
-                        <div id="score-player-${newPlayerNumber}" class="flex justify-end gap-0 w-24 box-border" style="display:none">
-                        <button id="score-minus-${newPlayerNumber}" class="bg-red-600 w-5 h-6 rounded-tl rounded-bl" onclick="editScore(this, 'remove');"> - </button>
-                        <span id="score-number-${newPlayerNumber}" class="text-center w-8 h-6 border border-black"> 0 </span>
-                        <button id="score-plus-${newPlayerNumber}" class="bg-green-600 w-5 h-6 rounded-tr rounded-br" onclick="editScore(this, 'add');"> + </button>
-                        </div>
-                    </div>`;
-            playersDiv.insertAdjacentHTML("beforeend", newPlayer);
-
-            return document.getElementById(`player-${newPlayerNumber}`);
-        }
-
-        function enterName(event) {
-            if (event.keyCode == 13) {
-                const playerNumber = getPlayerNumber(event.target);
-                const confirmButton = document.getElementById(
-                    `confirm-player-${playerNumber}`
-                );
-                confirmPlayer(confirmButton);
-
-                if (event.ctrlKey) {
-                    const newPlayer = addPlayer();
-                    const newPlayerNumber = getPlayerNumber(newPlayer);
-                    const newPlayerName = document.getElementById(`name-${newPlayerNumber}`);
-                    newPlayerName.focus();
-                }
-            }
-        }
-
-        function confirmPlayer(button) {
-            const playerNumber = getPlayerNumber(button);
-            const playerName = document.getElementById(`name-${playerNumber}`);
-
-            if (playerName.value.trim() == "") return;
-            playerName.disabled = true;
-
-            document.getElementById(`div-name-${playerNumber}`).style.width =
-                "fit-content";
-
-            button.remove();
-            document.getElementById(`delete-player-${playerNumber}`).remove();
-
-            const scoreDiv = document.getElementById(`score-player-${playerNumber}`);
-            scoreDiv.style.display = "flex";
-        }
-
-        function deletePlayer(button) {
-            const playerNumber = getPlayerNumber(button);
-            const player = document.getElementById(`player-${playerNumber}`);
-            player.remove();
-        }
-
-        function editScore(button, mode) {
-            const playerNumber = getPlayerNumber(button);
-            const scoreNumber = document.getElementById(`score-number-${playerNumber}`);
-
-            const score = parseInt(scoreNumber.innerHTML);
-            const newScore = mode == "add" ? score + 1 : score - 1;
-
-            scoreNumber.innerHTML = newScore;
-        }
-
-        function toggleAudio(songID) {
-            if (songID == currentID) {
+        function toggleAudio(songId) {
+            if (songId == currentId) {
                 return togglePause();
             }
-            if (currentID != "") removeFocus(document.getElementById(currentID));
-
-            const songPanel = document.getElementById(songID);
-
-            currentID = songID;
-            currentEmbeddable = animeInfo[songID].isEmbeddable;
-
-            setFocus(songPanel);
+            removeFocus(currentId);
+            setFocus(songId);
+            
+            const songPanel = document.getElementById(songId);            
+            currentEmbeddable = songPanel.dataset.isEmbeddable === "true";
+            
             if (currentEmbeddable) {
-                player.loadVideoById(songID);
+                player.loadVideoById(songId);
                 player.playVideo();
-            } else {
-                const audio = document.getElementById("audio");
-                const audioSource = document.getElementById("audio-source");
-                audioSource.src = "./offline/" + songID + ".mp3";
+            } else {                
+                audioSource.src = "./offline/" + songId + ".mp3";
                 audio.load();
                 audio.addEventListener("loadedmetadata", () => audio.play());
             }
-        }
-
-        // 2. This code loads the IFrame Player API code asynchronously.
-        function setupYT() {
-            var tag = document.createElement("script");
-
-            tag.src = "https://www.youtube.com/iframe_api";
-            var firstScriptTag = document.getElementsByTagName("script")[0];
-            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-        }
-
-        function onYouTubeIframeAPIReady() {
-            player = new YT.Player("player", {
-                videoId: "",
-                playerVars: {
-                    playsinline: 1,
-                },
-                events: {
-                    onStateChange: onPlayerStateChange,
-                },
-            });
         }
 
         function getDuration() {
@@ -332,22 +195,6 @@
             }
         }
 
-        function onPlayerStateChange(event) {
-            switch (event.data) {
-                case YT.PlayerState.ENDED:
-                    stop();
-                    break;
-                case YT.PlayerState.PLAYING:
-                    onPlay(event);
-                    break;
-                case YT.PlayerState.PAUSED:
-                    onPause();
-                    break;
-                default:
-                    break;
-            }
-        }
-
         function progress(percent) {
             const progressBar = document.getElementById("progressBar");
             const progressBarWidth = Math.floor(
@@ -358,7 +205,7 @@
         }
 
         function togglePause() {
-            if (currentID == "") return;
+            if (currentId == "") return;
 
             if (!currentEmbeddable) {
                 if (audio.paused) audio.play();
@@ -373,60 +220,62 @@
             }
         }
 
-        const difficultyClasses = {
-            easy: "border-green-900",
-            normal: "border-sky-900",
-            hard: "border-red-900",
-        };
+        function setFocus(songId) {
+            const songPanel = document.getElementById(songId);
 
-        function setFocus(div) {
-            div.classList.remove("border-4");
-            div.classList.add("border-8");
+            songPanel.classList.remove("border-4");
+            songPanel.classList.add("border-8");
 
-            const difficulty = div.dataset.difficulty;
-            const borderClass = difficultyClasses[difficulty];
+            const difficulty = songPanel.dataset.difficulty;
+            const borderClass = DIFFICULTY_CLASSES[difficulty];
 
-            div.classList.remove(borderClass);
-            div.classList.add("border-red-600");
+            songPanel.classList.remove(borderClass);
+            songPanel.classList.add("border-red-600");
+
+            currentId = songId;
         }
 
-        function removeFocus(div) {
-            div.classList.remove("border-8");
-            div.classList.add("border-4");
+        function removeFocus(songId) {
+            if (!songId) {
+                return;
+            }
+            
+            const songDiv = document.getElementById(songId)
+            
+            songDiv.classList.remove("border-8");
+            songDiv.classList.add("border-4");
 
-            const difficulty = div.dataset.difficulty;
-            const borderClass = difficultyClasses[difficulty];
+            const difficulty = songDiv.dataset.difficulty;
+            const borderClass = DIFFICULTY_CLASSES[difficulty];
 
-            div.classList.remove("border-red-600");
-            div.classList.add(borderClass);
+            songDiv.classList.remove("border-red-600");
+            songDiv.classList.add(borderClass);
 
             stop();
-            currentID = "";
+            currentId = "";
             currentEmbeddable = null;
         }
 
         function reveal() {
-            if (currentID == "") return;
+            if (currentId == "") return;
 
-            var div = document.getElementById(currentID);
-            var answer = document.getElementById(`anime-${currentID}`);
+            const div = document.getElementById(currentId);
+            const answer = document.getElementById(`anime-${currentId}`);
 
             answer.classList.remove("hidden");
 
             div.style.backgroundImage =
-                "url('http://img.youtube.com/vi/" + currentID + "/0.jpg')";
-            removeFocus(div);
+                "url('http://img.youtube.com/vi/" + currentId + "/0.jpg')";
+            removeFocus(currentId);
         }
 
         function setVolume(percent) {
             player.setVolume(percent);
             audio.volume = percent / 100;
         }
-
-        setupYT();
-        audio.addEventListener("play", onPlay);
-        audio.addEventListener("pause", onPause);
     </script>
+    <%- include(assetPaths.playerScript) %>
+    <%- include(assetPaths.modalScript, { animeInfo: animeInfo}) %>
 </body>
 
 </html>

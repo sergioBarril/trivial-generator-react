@@ -1,0 +1,85 @@
+<script>
+    function addPlayer() {
+        const playersDiv = document.getElementById("players");
+
+        const players = document.getElementsByName("player");
+        let newPlayerNumber = 0;
+        if (players.length > 0) {
+            newPlayerNumber =
+                parseInt(Array.from(players).at(-1).id.split("-").at(-1)) + 1;
+        }
+
+        const newPlayer = `<div id="player-${newPlayerNumber}" name="player" class="flex justify-start border gap-0 border-black rounded w-full bg-sky-300 p-2">
+            <div class="w-9/12" id="div-name-${newPlayerNumber}">
+            <input id="name-${newPlayerNumber}" type="text" placeholder="New player" class="px-1 bg-transparent w-full" onkeydown="enterName(event);">
+            </div>
+            <div>
+            <button onclick="confirmPlayer(this);" id="confirm-player-${newPlayerNumber}">✅</button>
+            <button onclick="deletePlayer(this);" id="delete-player-${newPlayerNumber}">❌</button>
+            </div>
+            <div id="score-player-${newPlayerNumber}" class="flex justify-end gap-0 w-24 box-border" style="display:none">
+            <button id="score-minus-${newPlayerNumber}" class="bg-red-600 w-5 h-6 rounded-tl rounded-bl" onclick="editScore(this, 'remove');"> - </button>
+            <span id="score-number-${newPlayerNumber}" class="text-center w-8 h-6 border border-black"> 0 </span>
+            <button id="score-plus-${newPlayerNumber}" class="bg-green-600 w-5 h-6 rounded-tr rounded-br" onclick="editScore(this, 'add');"> + </button>
+            </div>
+        </div>`;
+        playersDiv.insertAdjacentHTML("beforeend", newPlayer);
+
+        return document.getElementById(`player-${newPlayerNumber}`);
+    }
+
+    function getPlayerNumber(element) {
+        return element.id.split("-").at(-1);
+    }
+
+
+    function enterName(event) {
+        if (event.keyCode !== 13) {
+            return;
+        }
+
+        const playerNumber = getPlayerNumber(event.target);
+        const confirmButton = document.getElementById(`confirm-player-${playerNumber}`);
+        confirmPlayer(confirmButton);
+
+        if (event.ctrlKey) {
+            const newPlayer = addPlayer();
+            const newPlayerNumber = getPlayerNumber(newPlayer);
+            const newPlayerName = document.getElementById(`name-${newPlayerNumber}`);
+            newPlayerName.focus();
+        }
+    }
+
+    function confirmPlayer(button) {
+        const playerNumber = getPlayerNumber(button);
+        const playerName = document.getElementById(`name-${playerNumber}`);
+
+        if (playerName.value.trim() == "") return;
+        playerName.disabled = true;
+
+        document.getElementById(`div-name-${playerNumber}`).style.width =
+            "fit-content";
+
+        button.remove();
+        document.getElementById(`delete-player-${playerNumber}`).remove();
+
+        const scoreDiv = document.getElementById(`score-player-${playerNumber}`);
+        scoreDiv.style.display = "flex";
+    }
+
+    function deletePlayer(button) {
+        const playerNumber = getPlayerNumber(button);
+        const player = document.getElementById(`player-${playerNumber}`);
+        player.remove();
+    }
+
+    function editScore(button, mode) {
+        const playerNumber = getPlayerNumber(button);
+        const scoreNumber = document.getElementById(`score-number-${playerNumber}`);
+
+        const score = parseInt(scoreNumber.innerHTML);
+        const newScore = mode == "add" ? score + 1 : score - 1;
+
+        scoreNumber.innerHTML = newScore;
+    }
+</script>

@@ -5,6 +5,10 @@ import path from "path";
 
 import templatePath from "./trivial.template.ejs?asset";
 
+import trivialPlayerScriptPath from "./trivial.player.ejs?asset";
+import trivialYoutubeScriptPath from "./trivial.youtube.ejs?asset";
+import trivialModalScriptPath from "./trivial.modal.ejs?asset";
+
 import trivialCssPath from "./trivial.css.ejs?asset";
 
 import { SongWithId } from "..";
@@ -27,11 +31,19 @@ export async function renderTemplate({
 }: RenderTemplateProps) {
   const animeInfo: AnimeInfo = songs.reduce((acc, curr) => {
     acc[curr.id] = curr;
-    acc[curr.id].isEmbeddable = embeddableMap.get(curr.id);
     return acc;
   }, {});
 
-  const data = { author, songs, animeInfo, trivialCssPath };
+  const songsWithIsEmbedable = songs.map((s) => ({ ...s, isEmbeddable: embeddableMap.get(s.id)! }));
+
+  const assetPaths = {
+    css: trivialCssPath,
+    youtubeScript: trivialYoutubeScriptPath,
+    playerScript: trivialPlayerScriptPath,
+    modalScript: trivialModalScriptPath
+  };
+
+  const data = { author, songs: songsWithIsEmbedable, animeInfo, assetPaths };
 
   // Render the template with the data
   const renderedHtml = await ejs.renderFile(templatePath, data);
