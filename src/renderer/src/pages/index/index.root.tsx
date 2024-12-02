@@ -11,6 +11,7 @@ import useYoutubeEmbed from "@renderer/hooks/useYoutubeEmbed";
 import { Card, CardContent, CardFooter } from "@renderer/components/ui/Card";
 import { Edit, List } from "lucide-react";
 import { UploadFile, UploadFolder } from "./upload";
+import ProgressDialog from "./progress-dialog";
 
 type MainMenuProps = {
   originalListPath?: string;
@@ -160,9 +161,7 @@ function MainMenu() {
               />
             </CardContent>
             <CardFooter>
-              <Button className="w-full" onClick={handleGenerate} disabled={!canGenerate}>
-                Generate
-              </Button>
+              <ProgressDialog isDisabled={!canGenerate} startGeneration={handleGenerate} />
             </CardFooter>
           </Card>
         </div>
