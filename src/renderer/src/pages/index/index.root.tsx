@@ -1,21 +1,28 @@
-import MainButton from "./index-button";
 import MainLogo from "./index-logo";
 
-import listIcon from "../../assets/icons/list.png";
-import newIcon from "../../assets/icons/new.png";
-
-import { Label } from "../../components/ui/Label";
 import { useEffect, useState } from "react";
-import FileInput from "../../components/FileInput";
+
 import { useLocation, useNavigate } from "react-router-dom";
 import { ListFile } from "@renderer/types/list.types";
 import { animeListSchema } from "@renderer/schemas/list.schemas";
 import { Button } from "@renderer/components/ui/Button";
 import useYoutubeEmbed from "@renderer/hooks/useYoutubeEmbed";
 
+import { Card, CardContent, CardFooter } from "@renderer/components/ui/Card";
+import { Edit, List } from "lucide-react";
+import { UploadFile, UploadFolder } from "./upload";
+
 type MainMenuProps = {
   originalListPath?: string;
   originalOutputDir?: string;
+};
+
+const EMPTY_LIST_FILE: ListFile = {
+  content: {
+    author: "",
+    songs: []
+  },
+  path: ""
 };
 
 function MainMenu() {
@@ -63,7 +70,7 @@ function MainMenu() {
     }
   };
 
-  const handleInputDirectoryClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleOutputDirectoryClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     window.electron.ipcRenderer.send("dialog:openDirectory");
   };
@@ -104,13 +111,13 @@ function MainMenu() {
     });
   };
 
-  const displayedListPath = listFile.path || "No file selected";
-  const displayedOutputDir = outputDir || "No selected folder";
+  const displayedListPath = window.api.path.basename(listFile.path) || "Choose input file";
+  const displayedOutputDir = window.api.path.basename(outputDir) || "Choose output folder";
 
   return (
     <div className="dark grid grid-cols-[10%_1fr_10%] gap-0 grid-rows-1 h-full min-h-full">
       <div />
-      <div className="grid grid-cols-1 grid-rows-[150px_1fr_110px_45px_1fr_1fr_1fr] gap-10">
+      <div className="grid grid-cols-1 grid-rows-[150px_1fr] gap-20">
         <div className="mx-auto pt-10 h-32 w-32 flex flex-row justify-center align-center gap-10">
           <h1 className="mx-auto text-4xl font-extrabold leading-none tracking-tight md:text-5xl lg:text-6xl text-white">
             Trivial Generator
@@ -118,58 +125,44 @@ function MainMenu() {
           <MainLogo className="mx-auto h-32 w-32 float-right" />
         </div>
 
-        <div className="max-w-xl m-auto flex flex-row align-center justify-center">
-          <MainButton
-            iconUrl={newIcon}
-            label="New List"
-            onClick={() => handleListEditorClick("new")}
-          />
-          <MainButton
-            iconUrl={listIcon}
-            label="Edit List"
-            disabled={!listFile.path}
-            onClick={() => handleListEditorClick("edit")}
-          />
-          <MainButton iconUrl={listIcon} label="Generate Trivial" disabled />
-        </div>
+        <div className="min-h-screen flex items-start justify-center p-4">
+          <Card className="w-full max-w-md pt-4">
+            <CardContent className="space-y-4">
+              <div className="flex justify-center space-x-4">
+                <Button variant="outline" onClick={() => handleListEditorClick("new")}>
+                  <List className="mr-2 h-4 w-4" />
+                  Create List
+                </Button>
+                <Button variant="outline" onClick={() => handleListEditorClick("edit")}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit List
+                </Button>
+              </div>
 
-        <div className="grid grid-cols-[5%_3fr_5fr] grid-rows-[40px_40px] gap-y-4 gap-x-3">
-          <div />
-          <Label className="text-2xl text-right">Input file:</Label>
-          <Label
-            dir="rtl"
-            className="font-mono text-lg text-left self-center overflow-hidden text-ellipsis whitespace-nowrap"
-          >
-            {displayedListPath}
-          </Label>
+              <UploadFile
+                type="file"
+                label="Input File"
+                button={displayedListPath}
+                path={listFile.path}
+                onChange={handleSongFileChange}
+                onClickReset={() => setListFile(EMPTY_LIST_FILE)}
+              />
 
-          <div />
-          <Label className="text-2xl text-right">Output folder:</Label>
-          <Label
-            dir="rtl"
-            className="font-mono text-lg text-left self-center overflow-hidden text-ellipsis whitespace-nowrap"
-          >
-            {displayedOutputDir}
-          </Label>
-
-          <div />
-          <Label className="text-2xl text-right">Songs:</Label>
-          <Label
-            dir="rtl"
-            className="font-mono text-lg text-left self-center overflow-hidden text-ellipsis whitespace-nowrap"
-          >
-            {listFile.content?.songs.length ?? 0}
-          </Label>
-        </div>
-
-        <div className="flex flex-row justify-center gap-x-8">
-          <FileInput
-            accept="application/json"
-            text="Choose a list file"
-            onFileChange={handleSongFileChange}
-          />
-          <FileInput text="Choose a folder" onClick={handleInputDirectoryClick} />
-          <Button onClick={handleGenerate}>Generate</Button>
+              <UploadFolder
+                type="folder"
+                label="Output folder"
+                button={displayedOutputDir}
+                path={outputDir}
+                onClick={handleOutputDirectoryClick}
+                onClickReset={() => setOutputDir("")}
+              />
+            </CardContent>
+            <CardFooter>
+              <Button className="w-full" onClick={handleGenerate}>
+                Generate
+              </Button>
+            </CardFooter>
+          </Card>
         </div>
       </div>
       <div />

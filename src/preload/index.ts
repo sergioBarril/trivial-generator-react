@@ -1,7 +1,9 @@
-import { contextBridge, ipcRenderer } from "electron";
+import { contextBridge, ipcRenderer, shell } from "electron";
 import { electronAPI } from "@electron-toolkit/preload";
 
 import * as fs from "fs";
+
+import path from "path";
 
 // Custom APIs for renderer
 const api = {
@@ -10,6 +12,10 @@ const api = {
     readFileSync: (filePath: string, encoding: BufferEncoding) =>
       fs.readFileSync(filePath, encoding),
     writeFileSync: (filePath: string, text: string) => fs.writeFileSync(filePath, text)
+  },
+  path: path,
+  shell: {
+    openPath: shell.openPath
   }
 };
 
