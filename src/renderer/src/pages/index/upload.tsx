@@ -58,7 +58,12 @@ export function UploadFile({ label, button, path, onChange, onClickReset }: Uplo
               variant="ghost"
               size="icon"
               aria-label="Clear file selection"
-              onClick={onClickReset}
+              onClick={(e) => {
+                onClickReset(e);
+                if (inputRef.current) {
+                  inputRef.current.value = "";
+                }
+              }}
             >
               <X className="h-4 w-4" />
             </Button>

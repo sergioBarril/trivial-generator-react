@@ -114,6 +114,8 @@ function MainMenu() {
   const displayedListPath = window.api.path.basename(listFile.path) || "Choose input file";
   const displayedOutputDir = window.api.path.basename(outputDir) || "Choose output folder";
 
+  const canGenerate = listFile.content.songs.length > 0 && Boolean(outputDir);
+
   return (
     <div className="dark grid grid-cols-[10%_1fr_10%] gap-0 grid-rows-1 h-full min-h-full">
       <div />
@@ -158,7 +160,7 @@ function MainMenu() {
               />
             </CardContent>
             <CardFooter>
-              <Button className="w-full" onClick={handleGenerate}>
+              <Button className="w-full" onClick={handleGenerate} disabled={!canGenerate}>
                 Generate
               </Button>
             </CardFooter>
