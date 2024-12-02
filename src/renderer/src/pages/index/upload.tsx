@@ -77,11 +77,12 @@ export function UploadFile({ label, button, path, onChange, onClickReset }: Uplo
 export function UploadFolder({ label, button, path, onClickReset, onClick }: UploadFolderProps) {
   return (
     <div className="space-y-2">
-      <label htmlFor={`folder-upload`} className="block text-sm font-medium text-gray-700 mx-2">
+      <label htmlFor="folder-upload" className="block text-sm font-medium text-gray-700 mx-2">
         {label}
       </label>
       <div className="flex items-center space-x-2">
-        <Button variant="outline" onClick={onClick} className="w-full">
+        <div />
+        <Button id="folder-upload" variant="outline" onClick={onClick} className="w-full">
           <Folder className="mr-2 h-4 w-4" />
           {button}
         </Button>
