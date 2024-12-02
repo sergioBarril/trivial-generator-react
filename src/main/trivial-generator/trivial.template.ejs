@@ -121,8 +121,8 @@
             removeFocus(currentId);
             setFocus(songId);
             
-            const songPanel = document.getElementById(songId);            
-            currentEmbeddable = songPanel.dataset.isEmbeddable === "true";
+            const songPanel = document.getElementById(songId);
+            currentEmbeddable = songPanel.dataset.embeddable === "true";
             
             if (currentEmbeddable) {
                 player.loadVideoById(songId);
