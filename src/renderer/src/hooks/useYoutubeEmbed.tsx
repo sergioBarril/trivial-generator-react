@@ -5,6 +5,7 @@ const useYoutubeEmbed = () => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [player, setPlayer] = useState<any>(null);
+  const [isReady, setReady] = useState(false);
 
   const clearEvents = () => {
     player.removeEventListener("onError");
@@ -50,10 +51,16 @@ const useYoutubeEmbed = () => {
         height: "390",
         width: "640",
         videoId: "",
-        playerVars: { playsinline: 1 }
+        playerVars: { playsinline: 1 },
+        events: {
+          onStateChange: () => {},
+          onError: () => {},
+          onReady: () => {
+            setPlayer(newPlayer);
+            setReady(true);
+          }
+        }
       });
-
-      setPlayer(newPlayer);
     };
 
     // Cleanup on unmount
@@ -64,7 +71,7 @@ const useYoutubeEmbed = () => {
 
   const component = <div id="player" className="w-0 h-0" ref={playerRef}></div>;
 
-  return { component, player, isVideoEmbeddable };
+  return { isReady, component, player, isVideoEmbeddable };
 };
 
 export default useYoutubeEmbed;
