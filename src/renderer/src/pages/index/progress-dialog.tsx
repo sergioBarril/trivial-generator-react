@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import { Button } from "@renderer/components/ui/Button";
 import {
   Dialog,
@@ -30,7 +31,9 @@ type ConfirmationDialogProps = {
 const STEPS = {
   CONFIRMATION: "CONFIRMATION",
   COPYRIGHT: "COPYRIGHT_CHECK",
-  DOWNLOAD: "SONG_DOWNLOAD"
+  DOWNLOAD: "SONG_DOWNLOAD",
+  RENDERING: "HTML_RENDERING",
+  COMPLETED: "COMPLETED"
 } as const;
 type Step = (typeof STEPS)[keyof typeof STEPS];
 
@@ -100,9 +103,15 @@ function ConfirmationDialog({ isDisabled, setStep }: ConfirmationDialogProps) {
 
 type CopyrightProgressDialogProps = {
   songs: AnimeSong[];
+  setUnembeddableIds: Dispatch<SetStateAction<Array<string>>>;
+  setStep: Dispatch<SetStateAction<Step>>;
 };
 
-function CopyrightProgressDialog({ songs }: CopyrightProgressDialogProps) {
+function CopyrightProgressDialog({
+  songs,
+  setUnembeddableIds,
+  setStep
+}: CopyrightProgressDialogProps) {
   const { isReady, isVideoEmbeddable, component } = useYoutubeEmbed();
 
   const [count, setCount] = useState({ valid: 0, invalid: 0 });
@@ -134,7 +143,12 @@ function CopyrightProgressDialog({ songs }: CopyrightProgressDialogProps) {
       });
     }
 
-    return results;
+    const unembeddableIds = [...results.keys()].filter((songId) => !results.get(songId));
+
+    setUnembeddableIds(unembeddableIds);
+
+    const nextStep = unembeddableIds.length > 0 ? "SONG_DOWNLOAD" : "HTML_RENDERING";
+    setStep(nextStep);
   };
 
   useEffect(() => {
@@ -182,9 +196,112 @@ function CopyrightProgressDialog({ songs }: CopyrightProgressDialogProps) {
   );
 }
 
+type DownloadProgressDialogProps = {
+  outputDir: string;
+  unembeddableIds: Array<string>;
+  setFailedIds: Dispatch<SetStateAction<Array<string>>>;
+};
+
+type HandleDownloadCompletedBody = {
+  songId: string;
+  isDownloaded: boolean;
+};
+
+function DownloadProgressDialog({
+  unembeddableIds,
+  outputDir,
+  setFailedIds
+}: DownloadProgressDialogProps) {
+  const [count, setCount] = useState({ valid: 0, invalid: 0 });
+
+  const downloadAudio = async (songId: string) => {
+    let lastListenerCleanup: (() => void) | null = null;
+
+    return new Promise<boolean>((resolve) => {
+      const handleDownloadCompleted = (_, body: HandleDownloadCompletedBody) => {
+        const { songId, isDownloaded } = body;
+
+        if (!isDownloaded) {
+          setFailedIds((prev) => [...prev, songId]);
+        }
+
+        setCount((oldCount) => {
+          const newCount = { ...oldCount };
+          if (isDownloaded) {
+            newCount.valid += 1;
+          } else {
+            newCount.invalid += 1;
+          }
+          return newCount;
+        });
+
+        resolve(isDownloaded);
+      };
+
+      lastListenerCleanup = window.electron.ipcRenderer.once(
+        "generate:onDownloadCompleted",
+        handleDownloadCompleted
+      );
+
+      window.electron.ipcRenderer.send("generate:download", { songId, outputDir });
+    })
+      .catch(() => false)
+      .finally(() => lastListenerCleanup?.());
+  };
+
+  useEffect(() => {
+    const downloadAudios = async () => {
+      for (const songId of unembeddableIds) {
+        await downloadAudio(songId);
+      }
+    };
+
+    downloadAudios();
+  }, []);
+
+  const downloadedSongs = count.valid + count.invalid;
+  const percentage = (downloadedSongs / unembeddableIds.length) * 100;
+
+  let result: ReactElement | null = null;
+  if (downloadedSongs === unembeddableIds.length) {
+    result = (
+      <p>
+        Valid: {count.valid}. Invalid {count.invalid}.
+      </p>
+    );
+  }
+  return (
+    <Dialog open>
+      <DialogContent
+        className="sm:max-w-md"
+        onInteractOutside={(e) => {
+          e.preventDefault();
+        }}
+      >
+        <DialogHeader>
+          <DialogTitle>Downloading songs</DialogTitle>
+          <DialogDescription>
+            Downloading the songs that couldn't be embedded using Youtube... {result}
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex items-center space-x-2">
+          <div className="grid flex-1 gap-2">
+            <Progress value={percentage} />
+            <Label>
+              Downloaded {downloadedSongs}/{unembeddableIds.length} ({percentage.toFixed(2)}%)
+            </Label>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function ProgressDialog({ songs, outputDir }: ProgressDialogProps) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [step, setStep] = useState<Step>(STEPS.CONFIRMATION);
+
+  const [unembeddableIds, setUnembeddableIds] = useState<Array<string>>([]);
+  const [invalidIds, setFailedIds] = useState<Array<string>>([]);
 
   const isDisabled = Boolean(!outputDir || songs.length === 0);
 
@@ -193,7 +310,25 @@ export default function ProgressDialog({ songs, outputDir }: ProgressDialogProps
   }
 
   if (step === STEPS.COPYRIGHT) {
-    return <CopyrightProgressDialog songs={songs} />;
+    console.log(unembeddableIds);
+    console.log(invalidIds);
+    return (
+      <CopyrightProgressDialog
+        songs={songs}
+        setUnembeddableIds={setUnembeddableIds}
+        setStep={setStep}
+      />
+    );
+  }
+
+  if (step === STEPS.DOWNLOAD) {
+    return (
+      <DownloadProgressDialog
+        unembeddableIds={unembeddableIds}
+        setFailedIds={setFailedIds}
+        outputDir={outputDir}
+      />
+    );
   }
 
   return null;
