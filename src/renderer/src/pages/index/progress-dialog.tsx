@@ -17,9 +17,11 @@ import { Switch } from "@renderer/components/ui/Switch";
 import useYoutubeEmbed from "@renderer/hooks/useYoutubeEmbed";
 import { AnimeSong } from "@renderer/types/list.types";
 import { Dispatch, ReactElement, SetStateAction, useEffect, useState } from "react";
+import { BeatLoader } from "react-spinners";
 
 type ProgressDialogProps = {
   songs: AnimeSong[];
+  author: string;
   outputDir: string;
 };
 
@@ -147,7 +149,7 @@ function CopyrightProgressDialog({
 
     setUnembeddableIds(unembeddableIds);
 
-    const nextStep = unembeddableIds.length > 0 ? "SONG_DOWNLOAD" : "HTML_RENDERING";
+    const nextStep = unembeddableIds.length > 0 ? STEPS.DOWNLOAD : STEPS.RENDERING;
     setStep(nextStep);
   };
 
@@ -200,6 +202,7 @@ type DownloadProgressDialogProps = {
   outputDir: string;
   unembeddableIds: Array<string>;
   setFailedIds: Dispatch<SetStateAction<Array<string>>>;
+  setStep: Dispatch<SetStateAction<Step>>;
 };
 
 type HandleDownloadCompletedBody = {
@@ -210,7 +213,8 @@ type HandleDownloadCompletedBody = {
 function DownloadProgressDialog({
   unembeddableIds,
   outputDir,
-  setFailedIds
+  setFailedIds,
+  setStep
 }: DownloadProgressDialogProps) {
   const [count, setCount] = useState({ valid: 0, invalid: 0 });
 
@@ -256,7 +260,7 @@ function DownloadProgressDialog({
       }
     };
 
-    downloadAudios();
+    downloadAudios().then(() => setStep(STEPS.RENDERING));
   }, []);
 
   const downloadedSongs = count.valid + count.invalid;
@@ -297,11 +301,92 @@ function DownloadProgressDialog({
   );
 }
 
-export default function ProgressDialog({ songs, outputDir }: ProgressDialogProps) {
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+type RenderingHtmlDialogProps = {
+  songs: AnimeSong[];
+  outputDir: string;
+  author: string;
+  unembeddableIds: Array<string>;
+  failedIds: Array<string>;
+  setStep: Dispatch<SetStateAction<Step>>;
+};
+
+function RenderingHtmlDialog({
+  songs,
+  outputDir,
+  author,
+  unembeddableIds,
+  failedIds,
+  setStep
+}: RenderingHtmlDialogProps) {
+  useEffect(() => {
+    const handleTrivialGeneration = async () => {
+      await sleep(1500);
+      setStep(STEPS.COMPLETED);
+    };
+
+    const trivialCompletedListenerCleanup = window.electron.ipcRenderer.once(
+      "generate:trivial:completed",
+      handleTrivialGeneration
+    );
+
+    window.electron.ipcRenderer.send("generate:trivial", {
+      outputDir,
+      songs,
+      author,
+      unembeddableIds,
+      failedIds
+    });
+
+    return trivialCompletedListenerCleanup;
+  }, []);
+
+  return (
+    <Dialog open>
+      <DialogContent
+        className="sm:max-w-md"
+        onInteractOutside={(e) => {
+          e.preventDefault();
+        }}
+      >
+        <DialogHeader>
+          <DialogTitle>Generating Trivial...</DialogTitle>
+        </DialogHeader>
+        <div className="flex items-center space-x-2">
+          <BeatLoader color="#ffffff" />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+type CompletedDialogProps = {
+  outputDir: string;
+};
+
+function CompletedDialog({ outputDir }: CompletedDialogProps) {
+  return (
+    <Dialog open>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Trivial Generated</DialogTitle>
+        </DialogHeader>
+        <div className="flex items-center space-x-2">
+          <p>Generated in {outputDir}!!</p>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+export default function ProgressDialog({ songs, outputDir, author }: ProgressDialogProps) {
   const [step, setStep] = useState<Step>(STEPS.CONFIRMATION);
 
   const [unembeddableIds, setUnembeddableIds] = useState<Array<string>>([]);
-  const [invalidIds, setFailedIds] = useState<Array<string>>([]);
+  const [failedIds, setFailedIds] = useState<Array<string>>([]);
 
   const isDisabled = Boolean(!outputDir || songs.length === 0);
 
@@ -311,7 +396,7 @@ export default function ProgressDialog({ songs, outputDir }: ProgressDialogProps
 
   if (step === STEPS.COPYRIGHT) {
     console.log(unembeddableIds);
-    console.log(invalidIds);
+    console.log(failedIds);
     return (
       <CopyrightProgressDialog
         songs={songs}
@@ -327,8 +412,26 @@ export default function ProgressDialog({ songs, outputDir }: ProgressDialogProps
         unembeddableIds={unembeddableIds}
         setFailedIds={setFailedIds}
         outputDir={outputDir}
+        setStep={setStep}
       />
     );
+  }
+
+  if (step === STEPS.RENDERING) {
+    return (
+      <RenderingHtmlDialog
+        author={author}
+        failedIds={failedIds}
+        outputDir={outputDir}
+        songs={songs}
+        unembeddableIds={unembeddableIds}
+        setStep={setStep}
+      />
+    );
+  }
+
+  if (step === STEPS.COMPLETED) {
+    return <CompletedDialog outputDir={outputDir} />;
   }
 
   return null;

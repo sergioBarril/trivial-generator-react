@@ -136,7 +136,11 @@ function MainMenu() {
               />
             </CardContent>
             <CardFooter>
-              <ProgressDialog outputDir={outputDir} songs={listFile.content.songs} />
+              <ProgressDialog
+                outputDir={outputDir}
+                songs={listFile.content.songs}
+                author={listFile.content.author}
+              />
             </CardFooter>
           </Card>
         </div>

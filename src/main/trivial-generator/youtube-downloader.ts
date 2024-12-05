@@ -17,7 +17,10 @@ export async function downloadAudio({ outputDir, songId }: DownloadAudioParams) 
   const fullPath = path.join(offlineFolder, `${songId}.mp3`);
 
   if (fs.existsSync(fullPath)) {
-    return true; // Already exists
+    const sizeInBytes = fs.statSync(fullPath).size;
+
+    if (sizeInBytes > 0) return true;
+    else return false;
   }
 
   return await new Promise<boolean>((resolve) => {

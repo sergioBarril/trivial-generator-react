@@ -3,7 +3,7 @@ import { join } from "path";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
 
-// import { renderTemplate } from "./trivial-generator/template-render";
+import { renderTemplate } from "./trivial-generator/template-render";
 import { downloadAudio } from "./trivial-generator/youtube-downloader";
 
 function createWindow(): void {
@@ -116,29 +116,35 @@ export type AnimeSong = {
 
 export type SongWithId = AnimeSong & { id: string };
 
-export type ListFileContent = {
+export type GenerateTrivialBody = {
+  unembeddableIds: Array<string>;
+  failedIds: Array<string>;
   author: string;
   songs: AnimeSong[];
-};
-
-export type GenerateTrivialBody = {
-  embeddableMap: Map<string, boolean>;
-  listFileContent: ListFileContent;
   outputDir: string;
 };
 
-// ipcMain.on("generate:trivial", async (_, body: GenerateTrivialBody) => {
-//   console.log("Starting trivial generation backend");
-//   const { listFileContent, outputDir, embeddableMap } = body;
+ipcMain.on("generate:trivial", async (event, body: GenerateTrivialBody) => {
+  console.log("Starting trivial generation backend");
+  const mainWindow = BrowserWindow.fromWebContents(event.sender)!;
 
-//   const songs: SongWithId[] = listFileContent.songs.map((song) => ({
-//     ...song,
-//     id: song.link.split("/").at(-1)!
-//   }));
+  const { outputDir, unembeddableIds, failedIds, author, songs } = body;
 
-//   await downloadAudios({ outputDir, embeddableMap });
-//   await renderTemplate({ songs, author: listFileContent.author, outputDir, embeddableMap });
-// });
+  const songsWithId: SongWithId[] = songs.map((song) => ({
+    ...song,
+    id: song.link.split("/").at(-1)!
+  }));
+
+  await renderTemplate({
+    songs: songsWithId,
+    author,
+    outputDir,
+    unembeddableIds,
+    failedIds
+  });
+
+  mainWindow.webContents.send("generate:trivial:completed");
+});
 
 export type GenerateDownloadBody = {
   songId: string;

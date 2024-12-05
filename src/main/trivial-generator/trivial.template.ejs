@@ -82,7 +82,7 @@
                     hard: "border-red-900"
                 };
                     songs.forEach((song, index) => { %>
-                        <div id="<%= song.id %>"  data-embeddable="<%= song.isEmbeddable %>"  data-difficulty="<%= song.difficulty %>" name="song-panel"
+                        <div id="<%= song.id %>"  data-embeddable="<%= song.isEmbeddable %>" data-error="<%= song.isError %>" data-difficulty="<%= song.difficulty %>" name="song-panel"
                     class="border-4 <%= DIFFICULTY_COLORS[song.difficulty] %> xl:basis-56 lg:basis-52 bg-no-repeat bg-center bg-cover relative basis-60 flex-shrink-0 h-[10rem] pl-1
                         <%= song.isError ? " bg-black" : "" %>" onclick="toggleAudio(this.id);">
                             <span class="font-bold"><%= index + 1 %></span>
@@ -99,7 +99,8 @@
     <%- include(assetPaths.youtubeScript) %>
     <script>
         var currentId = "";
-        let currentEmbeddable = null;        
+        let currentEmbeddable = null;
+        let currentError = null;
         let interval;
         
         const audio = document.getElementById("audio");
@@ -121,8 +122,7 @@
             removeFocus(currentId);
             setFocus(songId);
             
-            const songPanel = document.getElementById(songId);
-            currentEmbeddable = songPanel.dataset.embeddable === "true";
+            if (currentError) return;
             
             if (currentEmbeddable) {
                 player.loadVideoById(songId);
@@ -137,7 +137,7 @@
         function getDuration() {
             if (currentEmbeddable) {
                 return player.getDuration();
-            }            
+            }
             return audio.duration;
         }
 
@@ -149,6 +149,11 @@
         }
 
         function onPlay(event) {
+            if (currentError) {
+                document.getElementById("total-duration").innerHTML = "--:--";
+                return;
+            }
+
             const songDuration = getDuration();
 
             interval = setInterval(() => {
@@ -169,6 +174,10 @@
         }
 
         function stop() {
+            if(currentError){
+                return;
+            }
+
             if (currentEmbeddable) {
                 player.stopVideo();
             } else {
@@ -205,7 +214,7 @@
         }
 
         function togglePause() {
-            if (currentId == "") return;
+            if (currentError || currentId == "") return;
 
             if (!currentEmbeddable) {
                 if (audio.paused) audio.play();
@@ -231,8 +240,10 @@
 
             songPanel.classList.remove(borderClass);
             songPanel.classList.add("border-red-600");
-
+            
             currentId = songId;
+            currentEmbeddable = songPanel.dataset.embeddable === "true";
+            currentError = songPanel.dataset.error === "true";
         }
 
         function removeFocus(songId) {
@@ -254,6 +265,7 @@
             stop();
             currentId = "";
             currentEmbeddable = null;
+            currentError = null;
         }
 
         function reveal() {
