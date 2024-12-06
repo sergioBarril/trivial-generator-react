@@ -10,7 +10,7 @@ import { Button } from "@renderer/components/ui/Button";
 import { Card, CardContent, CardFooter } from "@renderer/components/ui/Card";
 import { Edit, List } from "lucide-react";
 import { UploadFile, UploadFolder } from "./upload";
-import ProgressDialog from "./progress-dialog";
+import ProgressDialog from "./generation.dialog";
 
 type MainMenuProps = {
   originalListPath?: string;
@@ -78,16 +78,6 @@ function MainMenu() {
       state: { originalListPath: listFile.path, originalOutputDir: outputDir, mode }
     });
   };
-
-  // const handleGenerate = async () => {
-  //   const embeddableMap = await checkEmbeddability();
-
-  //   window.electron.ipcRenderer.send("generate:trivial", {
-  //     outputDir,
-  //     listFileContent: listFile.content,
-  //     embeddableMap
-  //   });
-  // };
 
   const displayedListPath = window.api.path.basename(listFile.path) || "Choose input file";
   const displayedOutputDir = window.api.path.basename(outputDir) || "Choose output folder";
