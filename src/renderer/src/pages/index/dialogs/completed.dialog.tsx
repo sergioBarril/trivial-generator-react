@@ -18,7 +18,7 @@ type CompletedDialogProps = {
 };
 
 export default function CompletedDialog({
-  // outputDir,
+  outputDir,
   setStep,
   setUnembeddableIds,
   setFailedIds
@@ -34,6 +34,8 @@ export default function CompletedDialog({
     }
   };
 
+  const trivialPath = window.api.path.join(outputDir, "trivial.html");
+
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
@@ -41,8 +43,12 @@ export default function CompletedDialog({
           <DialogTitle>Trivial Generated</DialogTitle>
           <DialogDescription>The trivial was generated successfully</DialogDescription>
         </DialogHeader>
-        <Button variant="secondary">Open Trivial</Button>
-        <Button variant="secondary">Open Folder</Button>
+        <Button variant="secondary" onClick={() => window.api.shell.openPath(trivialPath)}>
+          Open Trivial
+        </Button>
+        <Button variant="secondary" onClick={() => window.api.shell.openPath(outputDir)}>
+          Open Folder
+        </Button>
       </DialogContent>
     </Dialog>
   );

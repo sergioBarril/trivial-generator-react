@@ -50,7 +50,7 @@ export default function RenderingHtmlDialog({
   return (
     <Dialog open>
       <DialogContent
-        className="sm:max-w-md"
+        className="[&>button]:hidden sm:max-w-md"
         onInteractOutside={(e) => {
           e.preventDefault();
         }}
