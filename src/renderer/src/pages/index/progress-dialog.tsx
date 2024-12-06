@@ -365,18 +365,39 @@ function RenderingHtmlDialog({
 
 type CompletedDialogProps = {
   outputDir: string;
+  setStep: Dispatch<SetStateAction<Step>>;
+  setUnembeddableIds: Dispatch<SetStateAction<Array<string>>>;
+  setFailedIds: Dispatch<SetStateAction<Array<string>>>;
 };
 
-function CompletedDialog({ outputDir }: CompletedDialogProps) {
+function CompletedDialog({
+  // outputDir,
+  setStep,
+  setUnembeddableIds,
+  setFailedIds
+}: CompletedDialogProps) {
+  const [open, setOpen] = useState(true);
+
+  const handleClose = (event) => {
+    if (!event) {
+      setStep(STEPS.CONFIRMATION);
+      setOpen(false);
+      setUnembeddableIds([]);
+      setFailedIds([]);
+    }
+  };
+
   return (
-    <Dialog open>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Trivial Generated</DialogTitle>
+          <DialogDescription>The trivial was generated successfully</DialogDescription>
         </DialogHeader>
-        <div className="flex items-center space-x-2">
-          <p>Generated in {outputDir}!!</p>
-        </div>
+        <Button variant="secondary">Open Trivial</Button>
+        <Button variant="secondary">Open Folder</Button>
+
+        <DialogClose asChild />
       </DialogContent>
     </Dialog>
   );
@@ -395,8 +416,6 @@ export default function ProgressDialog({ songs, outputDir, author }: ProgressDia
   }
 
   if (step === STEPS.COPYRIGHT) {
-    console.log(unembeddableIds);
-    console.log(failedIds);
     return (
       <CopyrightProgressDialog
         songs={songs}
@@ -431,7 +450,14 @@ export default function ProgressDialog({ songs, outputDir, author }: ProgressDia
   }
 
   if (step === STEPS.COMPLETED) {
-    return <CompletedDialog outputDir={outputDir} />;
+    return (
+      <CompletedDialog
+        outputDir={outputDir}
+        setFailedIds={setFailedIds}
+        setStep={setStep}
+        setUnembeddableIds={setUnembeddableIds}
+      />
+    );
   }
 
   return null;
