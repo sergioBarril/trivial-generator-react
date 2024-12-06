@@ -18,11 +18,9 @@ const useYoutubeEmbed = () => {
       const handleError = reject;
       const handleStateChanged = (event) => {
         if (event.data != window.YT.PlayerState.PLAYING) {
-          console.log(`${songId} state`, event.data);
           return;
         }
 
-        console.log(`${songId} returning true`, event.data);
         resolve();
       };
 
@@ -61,11 +59,6 @@ const useYoutubeEmbed = () => {
           }
         }
       });
-    };
-
-    // Cleanup on unmount
-    return () => {
-      if (newPlayer) newPlayer.destroy();
     };
   }, []);
 

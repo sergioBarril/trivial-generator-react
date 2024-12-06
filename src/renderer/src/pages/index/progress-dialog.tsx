@@ -14,7 +14,7 @@ import { Input } from "@renderer/components/ui/Input";
 import { Label } from "@renderer/components/ui/Label";
 import { Progress } from "@renderer/components/ui/Progress";
 import { Switch } from "@renderer/components/ui/Switch";
-import useYoutubeEmbed from "@renderer/hooks/useYoutubeEmbed";
+import { useYoutubeContext } from "@renderer/hooks/useYoutubeContext";
 import { AnimeSong } from "@renderer/types/list.types";
 import { Dispatch, ReactElement, SetStateAction, useEffect, useState } from "react";
 import { BeatLoader } from "react-spinners";
@@ -114,7 +114,7 @@ function CopyrightProgressDialog({
   setUnembeddableIds,
   setStep
 }: CopyrightProgressDialogProps) {
-  const { isReady, isVideoEmbeddable, component } = useYoutubeEmbed();
+  const { isReady, isVideoEmbeddable, component } = useYoutubeContext();
 
   const [count, setCount] = useState({ valid: 0, invalid: 0 });
 
