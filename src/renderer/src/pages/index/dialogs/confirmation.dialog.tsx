@@ -54,6 +54,7 @@ export default function ConfirmationDialog({
                 Songs:
               </Label>
               <Input
+                tabIndex={-1} // Avoids focus
                 id="song-amount"
                 defaultValue={songAmount}
                 type="number"
