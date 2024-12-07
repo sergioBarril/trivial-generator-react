@@ -6,11 +6,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ListFile } from "@renderer/types/list.types";
 import { animeListSchema } from "@renderer/schemas/list.schemas";
 import { Button } from "@renderer/components/ui/Button";
-import useYoutubeEmbed from "@renderer/hooks/useYoutubeEmbed";
 
 import { Card, CardContent, CardFooter } from "@renderer/components/ui/Card";
 import { Edit, List } from "lucide-react";
 import { UploadFile, UploadFolder } from "./upload";
+import ProgressDialog from "./generation.dialog";
 
 type MainMenuProps = {
   originalListPath?: string;
@@ -37,8 +37,6 @@ function MainMenu() {
     path: originalListPath,
     content: { author: "", songs: [] }
   });
-
-  const { isVideoEmbeddable, component } = useYoutubeEmbed();
 
   const navigate = useNavigate();
 
@@ -81,40 +79,8 @@ function MainMenu() {
     });
   };
 
-  /**
-   * Check if the songs are embeddable in the HTML
-   *
-   * @returns A map that assigns to each songId true iff it's embeddable.
-   */
-  const checkEmbeddability = async () => {
-    const songIds = listFile.content.songs.map((song) => song.link.split("/").at(-1)!);
-
-    const results = new Map<string, boolean>();
-
-    for (const songId of songIds) {
-      const isValid = await isVideoEmbeddable(songId);
-      results.set(songId, isValid);
-    }
-
-    console.log("Finished getting copyright songs");
-
-    return results;
-  };
-
-  const handleGenerate = async () => {
-    const embeddableMap = await checkEmbeddability();
-
-    window.electron.ipcRenderer.send("generate:trivial", {
-      outputDir,
-      listFileContent: listFile.content,
-      embeddableMap
-    });
-  };
-
   const displayedListPath = window.api.path.basename(listFile.path) || "Choose input file";
   const displayedOutputDir = window.api.path.basename(outputDir) || "Choose output folder";
-
-  const canGenerate = listFile.content.songs.length > 0 && Boolean(outputDir);
 
   return (
     <div className="dark grid grid-cols-[10%_1fr_10%] gap-0 grid-rows-1 h-full min-h-full">
@@ -160,15 +126,16 @@ function MainMenu() {
               />
             </CardContent>
             <CardFooter>
-              <Button className="w-full" onClick={handleGenerate} disabled={!canGenerate}>
-                Generate
-              </Button>
+              <ProgressDialog
+                outputDir={outputDir}
+                songs={listFile.content.songs}
+                author={listFile.content.author}
+              />
             </CardFooter>
           </Card>
         </div>
       </div>
       <div />
-      {component}
     </div>
   );
 }

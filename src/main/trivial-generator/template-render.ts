@@ -15,7 +15,8 @@ import { SongWithId } from "..";
 
 export type RenderTemplateProps = {
   songs: SongWithId[];
-  embeddableMap: Map<string, boolean>;
+  unembeddableIds: Array<string>;
+  failedIds: Array<string>;
   author: string;
   outputDir: string;
 };
@@ -27,14 +28,21 @@ export async function renderTemplate({
   songs,
   author,
   outputDir,
-  embeddableMap
+  unembeddableIds,
+  failedIds
 }: RenderTemplateProps) {
   const animeInfo: AnimeInfo = songs.reduce((acc, curr) => {
     acc[curr.id] = curr;
     return acc;
   }, {});
 
-  const songsWithIsEmbedable = songs.map((s) => ({ ...s, isEmbeddable: embeddableMap.get(s.id)! }));
+  const songsWithStatus = songs.map((s) => ({
+    ...s,
+    isEmbeddable: !unembeddableIds.find((uid) => uid === s.id),
+    isError: Boolean(failedIds.find((fid) => fid === s.id))
+  }));
+
+  console.log(failedIds);
 
   const assetPaths = {
     css: trivialCssPath,
@@ -43,7 +51,7 @@ export async function renderTemplate({
     modalScript: trivialModalScriptPath
   };
 
-  const data = { author, songs: songsWithIsEmbedable, animeInfo, assetPaths };
+  const data = { author, songs: songsWithStatus, animeInfo, assetPaths };
 
   // Render the template with the data
   const renderedHtml = await ejs.renderFile(templatePath, data);
@@ -54,5 +62,7 @@ export async function renderTemplate({
   fs.writeFileSync(outputPath, renderedHtml);
 
   // Log success message
-  console.log('EJS template rendered successfully. Open "counter.html" to view the result.');
+  console.log("EJS template rendered successfully");
+
+  return;
 }

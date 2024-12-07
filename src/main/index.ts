@@ -4,7 +4,7 @@ import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import icon from "../../resources/icon.png?asset";
 
 import { renderTemplate } from "./trivial-generator/template-render";
-import { downloadAudios } from "./trivial-generator/youtube-downloader";
+import { downloadAudio } from "./trivial-generator/youtube-downloader";
 
 function createWindow(): void {
   // Create the browser window.
@@ -116,26 +116,46 @@ export type AnimeSong = {
 
 export type SongWithId = AnimeSong & { id: string };
 
-export type ListFileContent = {
+export type GenerateTrivialBody = {
+  unembeddableIds: Array<string>;
+  failedIds: Array<string>;
   author: string;
   songs: AnimeSong[];
-};
-
-export type GenerateTrivialBody = {
-  embeddableMap: Map<string, boolean>;
-  listFileContent: ListFileContent;
   outputDir: string;
 };
 
-ipcMain.on("generate:trivial", async (_, body: GenerateTrivialBody) => {
+ipcMain.on("generate:trivial", async (event, body: GenerateTrivialBody) => {
   console.log("Starting trivial generation backend");
-  const { listFileContent, outputDir, embeddableMap } = body;
+  const mainWindow = BrowserWindow.fromWebContents(event.sender)!;
 
-  const songs: SongWithId[] = listFileContent.songs.map((song) => ({
+  const { outputDir, unembeddableIds, failedIds, author, songs } = body;
+
+  const songsWithId: SongWithId[] = songs.map((song) => ({
     ...song,
     id: song.link.split("/").at(-1)!
   }));
 
-  await downloadAudios({ outputDir, embeddableMap });
-  await renderTemplate({ songs, author: listFileContent.author, outputDir, embeddableMap });
+  await renderTemplate({
+    songs: songsWithId,
+    author,
+    outputDir,
+    unembeddableIds,
+    failedIds
+  });
+
+  mainWindow.webContents.send("generate:trivial:completed");
+});
+
+export type GenerateDownloadBody = {
+  songId: string;
+  outputDir: string;
+};
+
+ipcMain.on("generate:download", async (event, body: GenerateDownloadBody) => {
+  const mainWindow = BrowserWindow.fromWebContents(event.sender)!;
+
+  const { outputDir, songId } = body;
+  const isDownloaded = await downloadAudio({ outputDir, songId }).catch(() => false);
+
+  mainWindow.webContents.send("generate:onDownloadCompleted", { songId, isDownloaded });
 });

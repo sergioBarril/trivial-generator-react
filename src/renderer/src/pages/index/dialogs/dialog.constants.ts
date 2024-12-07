@@ -1,0 +1,9 @@
+export const STEPS = {
+  CONFIRMATION: "CONFIRMATION",
+  COPYRIGHT: "COPYRIGHT_CHECK",
+  DOWNLOAD: "SONG_DOWNLOAD",
+  RENDERING: "HTML_RENDERING",
+  COMPLETED: "COMPLETED"
+} as const;
+
+export type Step = (typeof STEPS)[keyof typeof STEPS];

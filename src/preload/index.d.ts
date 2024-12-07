@@ -1,6 +1,6 @@
 import { ElectronAPI } from "@electron-toolkit/preload";
 import { shell } from "electron";
-import { dirname, basename } from "path";
+import { basename, dirname, join } from "path";
 
 const api = {
   selectFolder: () => ipcRenderer.send("dialog:openDirectory"),
@@ -10,6 +10,7 @@ const api = {
     writeFileSync: (filePath: string, text: string) => fs.writeFileSync(filePath, text)
   },
   path: {
+    join,
     basename,
     dirname
   },
