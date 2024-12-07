@@ -8,12 +8,24 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function shuffleSongs(songs: AnimeSong[]) {
+  const newSongs = [...songs];
+  for (let i = newSongs.length - 1; i > 0; i--) {
+    // Generate a random index between 0 and i
+    const j = Math.floor(Math.random() * (i + 1));
+    // Swap elements at index i and j
+    [newSongs[i], newSongs[j]] = [newSongs[j], newSongs[i]];
+  }
+  return newSongs;
+}
+
 type RenderingHtmlDialogProps = {
   songs: AnimeSong[];
   outputDir: string;
   author: string;
   unembeddableIds: Array<string>;
   failedIds: Array<string>;
+  isRandomized: boolean;
   setStep: Dispatch<SetStateAction<Step>>;
 };
 
@@ -23,6 +35,7 @@ export default function RenderingHtmlDialog({
   author,
   unembeddableIds,
   failedIds,
+  isRandomized,
   setStep
 }: RenderingHtmlDialogProps) {
   useEffect(() => {
@@ -38,7 +51,7 @@ export default function RenderingHtmlDialog({
 
     window.electron.ipcRenderer.send("generate:trivial", {
       outputDir,
-      songs,
+      songs: isRandomized ? shuffleSongs(songs) : songs,
       author,
       unembeddableIds,
       failedIds

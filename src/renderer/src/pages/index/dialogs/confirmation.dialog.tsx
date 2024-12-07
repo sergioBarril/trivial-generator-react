@@ -12,17 +12,22 @@ import {
 import { Input } from "@renderer/components/ui/Input";
 import { Label } from "@renderer/components/ui/Label";
 import { Switch } from "@renderer/components/ui/Switch";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { Step, STEPS } from "./dialog.constants";
 
 type ConfirmationDialogProps = {
   isDisabled: boolean;
+  isRandomized: boolean;
+  toggleRandomized: Dispatch<SetStateAction<boolean>>;
   setStep: Dispatch<SetStateAction<Step>>;
 };
 
-export default function ConfirmationDialog({ isDisabled, setStep }: ConfirmationDialogProps) {
-  const [randomized, setRandomized] = useState(false);
-
+export default function ConfirmationDialog({
+  isDisabled,
+  isRandomized,
+  toggleRandomized,
+  setStep
+}: ConfirmationDialogProps) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -61,9 +66,9 @@ export default function ConfirmationDialog({ isDisabled, setStep }: Confirmation
               </Label>
               <Switch
                 id="randomize"
-                checked={randomized}
+                checked={isRandomized}
                 onCheckedChange={(e) => {
-                  setRandomized(e.valueOf());
+                  toggleRandomized(e.valueOf());
                 }}
               />
             </div>

@@ -19,11 +19,19 @@ export default function ProgressDialog({ songs, outputDir, author }: ProgressDia
 
   const [unembeddableIds, setUnembeddableIds] = useState<Array<string>>([]);
   const [failedIds, setFailedIds] = useState<Array<string>>([]);
+  const [isRandomized, toggleRandomized] = useState(false);
 
   const isDisabled = Boolean(!outputDir || songs.length === 0);
 
   if (step === STEPS.CONFIRMATION) {
-    return <ConfirmationDialog isDisabled={isDisabled} setStep={setStep} />;
+    return (
+      <ConfirmationDialog
+        isDisabled={isDisabled}
+        isRandomized={isRandomized}
+        toggleRandomized={toggleRandomized}
+        setStep={setStep}
+      />
+    );
   }
 
   if (step === STEPS.COPYRIGHT) {
@@ -54,6 +62,7 @@ export default function ProgressDialog({ songs, outputDir, author }: ProgressDia
         failedIds={failedIds}
         outputDir={outputDir}
         songs={songs}
+        isRandomized={isRandomized}
         unembeddableIds={unembeddableIds}
         setStep={setStep}
       />
