@@ -16,6 +16,7 @@ import { Dispatch, SetStateAction } from "react";
 import { Step, STEPS } from "./dialog.constants";
 
 type ConfirmationDialogProps = {
+  songAmount: number;
   isDisabled: boolean;
   isRandomized: boolean;
   toggleRandomized: Dispatch<SetStateAction<boolean>>;
@@ -23,6 +24,7 @@ type ConfirmationDialogProps = {
 };
 
 export default function ConfirmationDialog({
+  songAmount,
   isDisabled,
   isRandomized,
   toggleRandomized,
@@ -53,7 +55,7 @@ export default function ConfirmationDialog({
               </Label>
               <Input
                 id="song-amount"
-                defaultValue={32}
+                defaultValue={songAmount}
                 type="number"
                 readOnly
                 className="max-w-10 px-0 pl-2"

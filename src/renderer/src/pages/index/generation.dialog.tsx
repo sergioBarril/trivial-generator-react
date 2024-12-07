@@ -26,6 +26,7 @@ export default function ProgressDialog({ songs, outputDir, author }: ProgressDia
   if (step === STEPS.CONFIRMATION) {
     return (
       <ConfirmationDialog
+        songAmount={songs.length}
         isDisabled={isDisabled}
         isRandomized={isRandomized}
         toggleRandomized={toggleRandomized}
