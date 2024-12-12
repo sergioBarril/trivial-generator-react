@@ -101,7 +101,11 @@ function MainMenu() {
                   <List className="mr-2 h-4 w-4" />
                   Create List
                 </Button>
-                <Button variant="outline" onClick={() => handleListEditorClick("edit")}>
+                <Button
+                  variant="outline"
+                  disabled={!listFile.path}
+                  onClick={() => handleListEditorClick("edit")}
+                >
                   <Edit className="mr-2 h-4 w-4" />
                   Edit List
                 </Button>
