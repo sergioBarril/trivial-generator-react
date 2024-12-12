@@ -1,5 +1,6 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { DataCell } from "./data-cell";
+import { ThumbnailCell } from "./thumbnail-cell";
 
 import ActionsCell from "./actions-cell";
 
@@ -17,6 +18,10 @@ export const columns = [
   columnHelper.display({
     id: "actions",
     cell: ActionsCell
+  }),
+  columnHelper.display({
+    id: "thumbnail",
+    cell: ThumbnailCell
   }),
   columnHelper.accessor("anime", {
     header: "Anime",
