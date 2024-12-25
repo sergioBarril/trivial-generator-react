@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Label } from "../../components/ui/Label";
 import { ListEditorTable } from "./table/list-editor-table";
-import FileInput from "../../components/FileInput";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { useLocation, useNavigate } from "react-router-dom";
 import { animeListSchema, animeSongSchema } from "@renderer/schemas/list.schemas";
 import { AnimeSong, AnimeSongList } from "@renderer/types/list.types";
+import { SaveAs } from "./save-as";
+import { Card, CardContent } from "@renderer/components/ui/Card";
 
 type ListEditorProps = {
   originalListPath?: string;
@@ -25,7 +26,7 @@ function ListEditor() {
 
   const [author, setAuthor] = useState("");
   const [data, setData] = useState<AnimeSong[]>([]);
-  const [listPath, setListPath] = useState(mode === "edit" ? originalListPath : "");
+  const [listPath, setListPath] = useState(mode === "edit" ? originalListPath || "" : "");
 
   const tableDivRef = useRef<HTMLTableElement>(null);
 
@@ -90,6 +91,7 @@ function ListEditor() {
   };
 
   const isCurrentDataValid = data.every((song) => song.link.length);
+  const displayedListPath = window.api.path.basename(listPath) || "Choose input file";
 
   const canSave = isCurrentDataValid && listPath?.length;
 
@@ -105,39 +107,39 @@ function ListEditor() {
         className="max-h-[50vh]"
       />
 
-      <div className="mt-10 flex flex-row">
-        <Label className="text-2xl text-right">Output file:</Label>
-        <Label
-          dir="rtl"
-          className="font-mono text-xl ml-5 text-left self-center overflow-hidden text-ellipsis whitespace-nowrap"
-        >
-          {listPath || "No file yet"}
-        </Label>
-        <FileInput
-          className="ml-5 h-9"
-          accept="application/json"
-          text="Choose a destination"
-          onClick={handleInputSaveAsClick}
-        />
+      <div className="mt-10 mb-5 flex flex-row justify-between">
+        <Card className="w-full max-w-[50%] pt-4">
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-[30%,1fr] grid-flow-row gap-5">
+              <Label className="text-2xl text-right w-full">Output File:</Label>
+              <SaveAs button={displayedListPath} path={listPath} onClick={handleInputSaveAsClick} />
 
-        <Button variant="outline" className="ml-auto" onClick={handleAddRowClick}>
-          Add row
-        </Button>
-      </div>
+              <Label className="text-2xl text-right">Author:</Label>
+              <Input
+                className="w-[150px]"
+                placeholder="Author..."
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+              ></Input>
 
-      <div className="flex flex-row mt-8 gap-5">
-        <Label className="text-2xl text-right">Author:</Label>
-        <Input
-          className="w-[150px]"
-          placeholder="Author..."
-          value={author}
-          onChange={(e) => setAuthor(e.target.value)}
-        ></Input>
-      </div>
+              <Label className="text-2xl text-right w-full">Songs:</Label>
+              <Label className="text-xl text-start self-end">{data.length}</Label>
+            </div>
+          </CardContent>
+        </Card>
 
-      <div className="flex flex-row mt-8 gap-5 items-stretch">
-        <Label className="text-2xl text-right">Songs:</Label>
-        <Label className="text-xl text-start self-end">{data.length}</Label>
+        <Card className="w-full max-w-[20%] max-h-20 pt-4">
+          <CardContent className="space-y-4">
+            <div className="w-full flex flex-row justify-center gap-6">
+              <Button variant="default" onClick={handleAddRowClick}>
+                Add row
+              </Button>
+              <Button variant="destructive" onClick={handleAddRowClick}>
+                Import Youtube Playlist
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="flex flex-row-reverse gap-5">
