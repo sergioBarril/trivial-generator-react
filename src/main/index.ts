@@ -5,6 +5,7 @@ import icon from "../../resources/icon.png?asset";
 
 import { renderTemplate } from "./trivial-generator/template-render";
 import { downloadAudio } from "./trivial-generator/youtube-downloader";
+import { importYoutubePlaylist } from "./youtube/playlist-importer";
 
 function createWindow(): void {
   // Create the browser window.
@@ -158,4 +159,22 @@ ipcMain.on("generate:download", async (event, body: GenerateDownloadBody) => {
   const isDownloaded = await downloadAudio({ outputDir, songId }).catch(() => false);
 
   mainWindow.webContents.send("generate:onDownloadCompleted", { songId, isDownloaded });
+});
+
+export type ImportPlaylistBody = {
+  playlistId: string;
+};
+
+ipcMain.on("youtube:import", async (event, body: ImportPlaylistBody) => {
+  const mainWindow = BrowserWindow.fromWebContents(event.sender)!;
+
+  const { playlistId } = body;
+
+  const listSongs = await importYoutubePlaylist(playlistId).catch((err) => {
+    console.error(err);
+    return [];
+  });
+  console.log(listSongs);
+
+  mainWindow.webContents.send("youtube:import:completed", { listSongs });
 });

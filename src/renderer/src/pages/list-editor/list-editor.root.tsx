@@ -8,6 +8,7 @@ import { animeListSchema, animeSongSchema } from "@renderer/schemas/list.schemas
 import { AnimeSong, AnimeSongList } from "@renderer/types/list.types";
 import { SaveAs } from "./save-as";
 import { Card, CardContent } from "@renderer/components/ui/Card";
+import { YoutubeDialog } from "./youtube.dialog";
 
 type ListEditorProps = {
   originalListPath?: string;
@@ -28,6 +29,8 @@ function ListEditor() {
   const [data, setData] = useState<AnimeSong[]>([]);
   const [listPath, setListPath] = useState(mode === "edit" ? originalListPath || "" : "");
 
+  const [isImportLoading, setIsImportLoading] = useState(false);
+
   const tableDivRef = useRef<HTMLTableElement>(null);
 
   const handleInputSaveAsClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -45,6 +48,30 @@ function ListEditor() {
     setAuthor(validatedData.author);
     setData(validatedData.songs);
   }, []);
+
+  useEffect(() => {
+    const handleYoutubePlaylistImported = (_, params) => {
+      const listSongs = params.listSongs;
+      const parsedNewSongs = listSongs.map((song) => ({
+        name: song.title,
+        link: `https://youtu.be/${song.id}`,
+        oped: "Opening",
+        band: "",
+        anime: "",
+        difficulty: "normal"
+      }));
+
+      const newData = [...data, ...parsedNewSongs];
+
+      setData(newData);
+      setIsImportLoading(false);
+    };
+
+    return window.electron.ipcRenderer.on(
+      "youtube:import:completed",
+      handleYoutubePlaylistImported
+    );
+  });
 
   useEffect(() => {
     const handleListPathChanged = (_, params) => {
@@ -134,9 +161,7 @@ function ListEditor() {
               <Button variant="default" onClick={handleAddRowClick}>
                 Add row
               </Button>
-              <Button variant="destructive" onClick={handleAddRowClick}>
-                Import Youtube Playlist
-              </Button>
+              <YoutubeDialog isLoading={isImportLoading} setIsLoading={setIsImportLoading} />
             </div>
           </CardContent>
         </Card>
