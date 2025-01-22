@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 import { useLocation, useNavigate } from "react-router-dom";
 import { ListFile } from "@renderer/types/list.types";
-import { animeListSchema } from "@renderer/schemas/list.schemas";
+import { SongListSchema } from "@renderer/schemas/list.schemas";
 import { Button } from "@renderer/components/ui/Button";
 
 import { Card, CardContent, CardFooter } from "@renderer/components/ui/Card";
@@ -20,6 +20,7 @@ type MainMenuProps = {
 const EMPTY_LIST_FILE: ListFile = {
   content: {
     author: "",
+    type: "anime",
     songs: []
   },
   path: ""
@@ -35,7 +36,7 @@ function MainMenu() {
 
   const [listFile, setListFile] = useState<ListFile>({
     path: originalListPath,
-    content: { author: "", songs: [] }
+    content: { author: "", type: "anime", songs: [] }
   });
 
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ function MainMenu() {
     const file = window.api.fs.readFileSync(listFile.path, "utf-8").toString();
 
     const rawListObject = JSON.parse(file);
-    const validatedData = animeListSchema.parse(rawListObject);
+    const validatedData = SongListSchema.parse(rawListObject);
 
     setListFile((oldFile) => ({ ...oldFile, content: validatedData }));
   }, [listFile.path]);
@@ -64,7 +65,7 @@ function MainMenu() {
     if (newFile) {
       setListFile((prev) => ({ ...prev, path: newFile.path }));
     } else {
-      setListFile({ path: "", content: { author: "", songs: [] } });
+      setListFile({ path: "", content: { author: "", type: "anime", songs: [] } });
     }
   };
 

@@ -1,4 +1,4 @@
-import { AnimeSong } from "@renderer/types/list.types";
+import { Song } from "@renderer/types/list.types";
 import { useState } from "react";
 import { Step, STEPS } from "./dialogs/dialog.constants";
 
@@ -9,7 +9,7 @@ import RenderingHtmlDialog from "./dialogs/rendering.dialog";
 import CompletedDialog from "./dialogs/completed.dialog";
 
 type ProgressDialogProps = {
-  songs: AnimeSong[];
+  songs: Song[];
   author: string;
   outputDir: string;
 };

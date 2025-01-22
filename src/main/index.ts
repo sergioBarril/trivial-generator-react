@@ -107,16 +107,28 @@ ipcMain.on("dialog:saveAs", async (event) => {
   }
 });
 
-export type AnimeSong = {
+export interface BaseSong {
+  id: string;
+  name: string;
+  difficulty: "easy" | "normal" | "hard";
+}
+
+export interface AnimeSong extends BaseSong {
   anime: string;
   oped: "Opening" | "Ending" | "OST";
   band: string;
-  name: string;
-  difficulty: "easy" | "normal" | "hard";
-  link: string;
-};
+}
 
-export type SongWithId = AnimeSong & { id: string };
+export interface GameSong extends BaseSong {
+  game: string;
+  saga: string;
+}
+
+export interface NormieSong extends BaseSong {
+  band: string;
+}
+
+export type Song = AnimeSong | GameSong | NormieSong;
 
 export type GenerateTrivialBody = {
   unembeddableIds: Array<string>;
@@ -132,13 +144,8 @@ ipcMain.on("generate:trivial", async (event, body: GenerateTrivialBody) => {
 
   const { outputDir, unembeddableIds, failedIds, author, songs } = body;
 
-  const songsWithId: SongWithId[] = songs.map((song) => ({
-    ...song,
-    id: song.link.split("/").at(-1)!
-  }));
-
   await renderTemplate({
-    songs: songsWithId,
+    songs,
     author,
     outputDir,
     unembeddableIds,

@@ -9,13 +9,13 @@ import {
 import { Label } from "@renderer/components/ui/Label";
 import { Dispatch, ReactElement, SetStateAction, useEffect, useState } from "react";
 import { Step, STEPS } from "./dialog.constants";
-import { AnimeSong } from "@renderer/types/list.types";
+import { Song } from "@renderer/types/list.types";
 
 import { useYoutubeContext } from "@renderer/hooks/useYoutubeContext";
 import { Progress } from "@renderer/components/ui/Progress";
 
 type CopyrightProgressDialogProps = {
-  songs: AnimeSong[];
+  songs: Song[];
   setUnembeddableIds: Dispatch<SetStateAction<Array<string>>>;
   setStep: Dispatch<SetStateAction<Step>>;
 };

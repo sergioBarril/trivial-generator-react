@@ -1,14 +1,14 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@renderer/components/ui/Dialog";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { Step, STEPS } from "./dialog.constants";
-import { AnimeSong } from "@renderer/types/list.types";
+import { Song } from "@renderer/types/list.types";
 import { BeatLoader } from "react-spinners";
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function shuffleSongs(songs: AnimeSong[]) {
+function shuffleSongs(songs: Song[]) {
   const newSongs = [...songs];
   for (let i = newSongs.length - 1; i > 0; i--) {
     // Generate a random index between 0 and i
@@ -20,7 +20,7 @@ function shuffleSongs(songs: AnimeSong[]) {
 }
 
 type RenderingHtmlDialogProps = {
-  songs: AnimeSong[];
+  songs: Song[];
   outputDir: string;
   author: string;
   unembeddableIds: Array<string>;

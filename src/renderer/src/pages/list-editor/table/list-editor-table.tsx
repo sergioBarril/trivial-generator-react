@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 
-import { Dispatch, LegacyRef, SetStateAction } from "react";
+import { Dispatch, LegacyRef, SetStateAction, useMemo } from "react";
 
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import {
@@ -13,14 +13,16 @@ import {
   TableRow
 } from "../../../components/ui/Table";
 
-import { columns } from "./list-editor-table.columns";
-import { AnimeSong } from "@renderer/types/list.types";
+import { getColumnVisibility, songColumns } from "./list-editor-table.columns";
+import { Song } from "@renderer/types/list.types";
+import { getYoutubeVideoId } from "@renderer/lib/utils";
 
 type ListEditorTableProps = {
-  data: Array<AnimeSong>;
-  setData: Dispatch<SetStateAction<AnimeSong[]>>;
+  data: Array<Song>;
+  setData: Dispatch<SetStateAction<Song[]>>;
   className?: string;
   tableDivRef?: LegacyRef<HTMLDivElement>;
+  type?: "anime" | "game" | "normie";
 };
 
 export type ListEditorTableMeta = {
@@ -34,16 +36,27 @@ export const ListEditorTable = ({
   className,
   data,
   setData,
-  tableDivRef
+  tableDivRef,
+  type = "anime"
 }: ListEditorTableProps) => {
+  const columnVisibility = useMemo(() => getColumnVisibility(type), [type]);
+
+  console.log("xxxxxxxxxxx", columnVisibility);
+
   const updateData = (rowIndex: number, columnId: string, value: string) => {
     setData((old) =>
       old.map((row, index) => {
         if (index === rowIndex) {
-          return {
+          const newData = {
             ...old[rowIndex],
             [columnId]: value
           };
+
+          if (columnId === "link") {
+            newData.id = getYoutubeVideoId(newData.link) || "";
+          }
+
+          return newData;
         }
         return row;
       })
@@ -84,9 +97,12 @@ export const ListEditorTable = ({
     });
   };
 
-  const table = useReactTable({
+  const table = useReactTable<Song>({
     data,
-    columns,
+    columns: songColumns,
+    state: {
+      columnVisibility
+    },
     getCoreRowModel: getCoreRowModel(),
     meta: { updateData, deleteRow, moveRowUp, moveRowDown }
   });
