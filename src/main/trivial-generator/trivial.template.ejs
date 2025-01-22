@@ -18,10 +18,12 @@
                 <h3 class="text-lg text-center leading-6 font-medium text-gray-900">Información extra:</h3>
                 <div class="mt-2 px-7 py-3">
                     <ul>
-                        <li><span class="font-bold">Anime: </span><span id="modal-anime"></span></li>
-                        <li><span class="font-bold">Tipo: </span><span id="modal-oped"></span></li>
-                        <li><span class="font-bold">Banda: </span><span id="modal-band"></span></li>
-                        <li><span class="font-bold">Canción: </span><span id="modal-song"></span></li>
+                        <li style="display:none;"><span class="font-bold">Anime: </span><span id="modal-anime"></span></li>
+                        <li style="display:none;"><span class="font-bold">Juego: </span><span id="modal-game"></span></li>
+                        <li style="display:none;"><span class="font-bold">Saga: </span><span id="modal-saga"></span></li>
+                        <li style="display:none;"><span class="font-bold">Tipo: </span><span id="modal-oped"></span></li>
+                        <li style="display:none;"><span class="font-bold">Banda: </span><span id="modal-band"></span></li>
+                        <li style="display:none;"><span class="font-bold">Canción: </span><span id="modal-song"></span></li>
                     </ul>
                 </div>
                 <div class="items-center px-4 py-3">
@@ -87,7 +89,7 @@
                         <%= song.isError ? " bg-black" : "" %>" onclick="toggleAudio(this.id);">
                             <span class="font-bold"><%= index + 1 %></span>
                             <span id="anime-<%=song.id%>" class="hidden font-mono absolute bottom-0 left-0 px-1 w-full bg-black text-white">
-                                <%= song.anime %>
+                                <%= trivialType === "anime" ? song.anime : trivialType === "game" ? song.game : song.name %>
                             </span>
                         </div>
                 <% }) %>
@@ -287,7 +289,7 @@
         }
     </script>
     <%- include(assetPaths.playerScript) %>
-    <%- include(assetPaths.modalScript, { animeInfo: animeInfo}) %>
+    <%- include(assetPaths.modalScript, { songInfo: songInfo, trivialType: trivialType}) %>
 </body>
 
 </html>

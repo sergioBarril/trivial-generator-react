@@ -1,4 +1,4 @@
-import { Song } from "@renderer/types/list.types";
+import { ListType, Song } from "@renderer/types/list.types";
 import { useState } from "react";
 import { Step, STEPS } from "./dialogs/dialog.constants";
 
@@ -11,10 +11,16 @@ import CompletedDialog from "./dialogs/completed.dialog";
 type ProgressDialogProps = {
   songs: Song[];
   author: string;
+  trivialType: ListType;
   outputDir: string;
 };
 
-export default function ProgressDialog({ songs, outputDir, author }: ProgressDialogProps) {
+export default function ProgressDialog({
+  songs,
+  outputDir,
+  author,
+  trivialType
+}: ProgressDialogProps) {
   const [step, setStep] = useState<Step>(STEPS.CONFIRMATION);
 
   const [unembeddableIds, setUnembeddableIds] = useState<Array<string>>([]);
@@ -66,6 +72,7 @@ export default function ProgressDialog({ songs, outputDir, author }: ProgressDia
         isRandomized={isRandomized}
         unembeddableIds={unembeddableIds}
         setStep={setStep}
+        trivialType={trivialType}
       />
     );
   }

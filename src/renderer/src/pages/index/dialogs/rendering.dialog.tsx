@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@renderer/components/ui/Dialog";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import { Step, STEPS } from "./dialog.constants";
-import { Song } from "@renderer/types/list.types";
+import { ListType, Song } from "@renderer/types/list.types";
 import { BeatLoader } from "react-spinners";
 
 function sleep(ms: number) {
@@ -27,6 +27,7 @@ type RenderingHtmlDialogProps = {
   failedIds: Array<string>;
   isRandomized: boolean;
   setStep: Dispatch<SetStateAction<Step>>;
+  trivialType: ListType;
 };
 
 export default function RenderingHtmlDialog({
@@ -36,7 +37,8 @@ export default function RenderingHtmlDialog({
   unembeddableIds,
   failedIds,
   isRandomized,
-  setStep
+  setStep,
+  trivialType
 }: RenderingHtmlDialogProps) {
   useEffect(() => {
     const handleTrivialGeneration = async () => {
@@ -54,6 +56,7 @@ export default function RenderingHtmlDialog({
       songs: isRandomized ? shuffleSongs(songs) : songs,
       author,
       unembeddableIds,
+      trivialType,
       failedIds
     });
 

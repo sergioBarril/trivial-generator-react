@@ -135,6 +135,7 @@ function MainMenu() {
                 outputDir={outputDir}
                 songs={listFile.content.songs}
                 author={listFile.content.author}
+                trivialType={listFile.content.type}
               />
             </CardFooter>
           </Card>

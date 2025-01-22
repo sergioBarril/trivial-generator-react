@@ -136,20 +136,22 @@ export type GenerateTrivialBody = {
   author: string;
   songs: AnimeSong[];
   outputDir: string;
+  trivialType: "anime" | "normie" | "game";
 };
 
 ipcMain.on("generate:trivial", async (event, body: GenerateTrivialBody) => {
   console.log("Starting trivial generation backend");
   const mainWindow = BrowserWindow.fromWebContents(event.sender)!;
 
-  const { outputDir, unembeddableIds, failedIds, author, songs } = body;
+  const { outputDir, unembeddableIds, failedIds, author, songs, trivialType } = body;
 
   await renderTemplate({
     songs,
     author,
     outputDir,
     unembeddableIds,
-    failedIds
+    failedIds,
+    trivialType
   });
 
   mainWindow.webContents.send("generate:trivial:completed");

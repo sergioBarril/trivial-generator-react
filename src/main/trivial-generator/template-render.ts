@@ -18,19 +18,21 @@ export type RenderTemplateProps = {
   failedIds: Array<string>;
   author: string;
   outputDir: string;
+  trivialType: "anime" | "normie" | "game";
 };
 
 export type SongWithIdAndCopyright = Song & { isEmbeddable: boolean };
-export type AnimeInfo = Record<string, SongWithIdAndCopyright>;
+export type SongInfo = Record<string, SongWithIdAndCopyright>;
 
 export async function renderTemplate({
   songs,
+  trivialType,
   author,
   outputDir,
   unembeddableIds,
   failedIds
 }: RenderTemplateProps) {
-  const animeInfo: AnimeInfo = songs.reduce((acc, curr) => {
+  const songInfo: SongInfo = songs.reduce((acc, curr) => {
     acc[curr.id] = curr;
     return acc;
   }, {});
@@ -50,7 +52,7 @@ export async function renderTemplate({
     modalScript: trivialModalScriptPath
   };
 
-  const data = { author, songs: songsWithStatus, animeInfo, assetPaths };
+  const data = { author, songs: songsWithStatus, songInfo, trivialType, assetPaths };
 
   // Render the template with the data
   const renderedHtml = await ejs.renderFile(templatePath, data);

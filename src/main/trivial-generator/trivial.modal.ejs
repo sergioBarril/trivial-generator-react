@@ -1,5 +1,6 @@
 <script>
-    const animeInfo = <%- JSON.stringify(animeInfo) %>;
+    const songInfo = <%- JSON.stringify(songInfo) %>;
+    const trivialType = <%- JSON.stringify(trivialType) %>;
 
     // ************
     //     MODAL
@@ -12,6 +13,25 @@
     const modalOped = document.getElementById("modal-oped");
     const modalBand = document.getElementById("modal-band");
     const modalSong = document.getElementById("modal-song");
+    const modalGame = document.getElementById("modal-game");
+    const modalSaga = document.getElementById("modal-saga");
+
+    modalSong.parentElement.style.display = "block";        
+    
+    if (trivialType === "anime") {
+        modalAnime.parentElement.style.display = "block";
+        modalOped.parentElement.style.display = "block";
+        modalBand.parentElement.style.display = "block";
+    }
+
+    else if (trivialType === "normie") {
+        modalBand.parentElement.style.display = "block";
+    }
+
+    else if (trivialType === "game") {
+        modalSaga.parentElement.style.display = "block";
+        modalGame.parentElement.style.display = "block";
+    }
 
     btnModal.onclick = () => (modal.style.display = "none");
     window.onclick = function (event) {
@@ -25,7 +45,7 @@
         
         modal.style.display = "block";
 
-        const song = animeInfo[currentId];
+        const song = songInfo[currentId];
 
         modalAnime.innerHTML = song.anime;
         modalOped.innerHTML = song.oped;

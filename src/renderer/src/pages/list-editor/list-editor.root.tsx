@@ -80,6 +80,7 @@ function ListEditor() {
 
     setAuthor(validatedData.author);
     setData(validatedData.songs);
+    setListType(validatedData.type);
   }, []);
 
   useEffect(() => {
