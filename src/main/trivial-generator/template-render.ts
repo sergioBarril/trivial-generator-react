@@ -10,28 +10,29 @@ import trivialYoutubeScriptPath from "./trivial.youtube.ejs?asset";
 import trivialModalScriptPath from "./trivial.modal.ejs?asset";
 
 import trivialCssPath from "./trivial.css.ejs?asset";
-
-import { SongWithId } from "..";
+import { Song } from "..";
 
 export type RenderTemplateProps = {
-  songs: SongWithId[];
+  songs: Song[];
   unembeddableIds: Array<string>;
   failedIds: Array<string>;
   author: string;
   outputDir: string;
+  trivialType: "anime" | "normie" | "game";
 };
 
-export type SongWithIdAndCopyright = SongWithId & { isEmbeddable: boolean };
-export type AnimeInfo = Record<string, SongWithIdAndCopyright>;
+export type SongWithIdAndCopyright = Song & { isEmbeddable: boolean };
+export type SongInfo = Record<string, SongWithIdAndCopyright>;
 
 export async function renderTemplate({
   songs,
+  trivialType,
   author,
   outputDir,
   unembeddableIds,
   failedIds
 }: RenderTemplateProps) {
-  const animeInfo: AnimeInfo = songs.reduce((acc, curr) => {
+  const songInfo: SongInfo = songs.reduce((acc, curr) => {
     acc[curr.id] = curr;
     return acc;
   }, {});
@@ -51,7 +52,7 @@ export async function renderTemplate({
     modalScript: trivialModalScriptPath
   };
 
-  const data = { author, songs: songsWithStatus, animeInfo, assetPaths };
+  const data = { author, songs: songsWithStatus, songInfo, trivialType, assetPaths };
 
   // Render the template with the data
   const renderedHtml = await ejs.renderFile(templatePath, data);

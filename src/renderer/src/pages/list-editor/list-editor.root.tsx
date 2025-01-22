@@ -4,11 +4,18 @@ import { ListEditorTable } from "./table/list-editor-table";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { useLocation, useNavigate } from "react-router-dom";
-import { animeListSchema, animeSongSchema } from "@renderer/schemas/list.schemas";
-import { AnimeSong, AnimeSongList } from "@renderer/types/list.types";
+import { SongListSchema } from "@renderer/schemas/list.schemas";
+import { ListType, Song, SongList } from "@renderer/types/list.types";
 import { SaveAs } from "./save-as";
 import { Card, CardContent } from "@renderer/components/ui/Card";
 import { YoutubeDialog } from "./youtube.dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@renderer/components/ui/Select";
 
 type ListEditorProps = {
   originalListPath?: string;
@@ -16,8 +23,33 @@ type ListEditorProps = {
   mode: "new" | "edit";
 };
 
-function buildDefaultRow() {
-  return animeSongSchema.parse({});
+function buildDefaultRow(type: ListType): Song {
+  const baseRow = {
+    id: "",
+    name: "",
+    link: "",
+    difficulty: "normal" as const
+  };
+
+  if (type === "anime") {
+    return {
+      ...baseRow,
+      anime: "",
+      oped: "Opening",
+      name: "",
+      band: ""
+    };
+  }
+
+  if (type === "game") {
+    return { ...baseRow, saga: "", game: "" };
+  }
+
+  if (type === "normie") {
+    return { ...baseRow, band: "" };
+  }
+
+  throw new Error("Invalid type!");
 }
 
 function ListEditor() {
@@ -26,7 +58,8 @@ function ListEditor() {
   const navigate = useNavigate();
 
   const [author, setAuthor] = useState("");
-  const [data, setData] = useState<AnimeSong[]>([]);
+  const [listType, setListType] = useState<ListType>("anime");
+  const [data, setData] = useState<Song[]>([]);
   const [listPath, setListPath] = useState(mode === "edit" ? originalListPath || "" : "");
 
   const [isImportLoading, setIsImportLoading] = useState(false);
@@ -43,23 +76,26 @@ function ListEditor() {
     const file = window.api.fs.readFileSync(listPath, "utf-8").toString();
 
     const rawListObject = JSON.parse(file);
-    const validatedData = animeListSchema.parse(rawListObject);
+    const validatedData = SongListSchema.parse(rawListObject);
 
     setAuthor(validatedData.author);
     setData(validatedData.songs);
+    setListType(validatedData.type);
   }, []);
 
   useEffect(() => {
     const handleYoutubePlaylistImported = (_, params) => {
       const listSongs = params.listSongs;
-      const parsedNewSongs = listSongs.map((song) => ({
-        name: song.title,
-        link: `https://youtu.be/${song.id}`,
-        oped: "Opening",
-        band: "",
-        anime: "",
-        difficulty: "normal"
-      }));
+
+      const parsedNewSongs = listSongs.map((song) => {
+        const newRow = buildDefaultRow(listType);
+
+        newRow.id = song.id;
+        newRow.name = song.title;
+        newRow.link = `https://youtu.be/${song.id}`;
+
+        return newRow;
+      });
 
       const newData = [...data, ...parsedNewSongs];
 
@@ -91,8 +127,9 @@ function ListEditor() {
   const handleSaveAndQuitClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
-    const songList: AnimeSongList = {
+    const songList: SongList = {
       author,
+      type: listType,
       songs: data
     };
 
@@ -105,7 +142,7 @@ function ListEditor() {
   const handleAddRowClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     setData((prevData) => {
-      const newRow = buildDefaultRow();
+      const newRow = buildDefaultRow(listType);
       return [...prevData, newRow];
     });
 
@@ -117,7 +154,11 @@ function ListEditor() {
     }, 0);
   };
 
-  const isCurrentDataValid = data.every((song) => song.link.length);
+  const handleTypeSelectChanged = (value: string) => {
+    setListType(value as ListType);
+  };
+
+  const isCurrentDataValid = data.every((song) => song.id.length);
   const displayedListPath = window.api.path.basename(listPath) || "Choose input file";
 
   const canSave = isCurrentDataValid && listPath?.length;
@@ -132,6 +173,7 @@ function ListEditor() {
         setData={setData}
         tableDivRef={tableDivRef}
         className="max-h-[50vh]"
+        type={listType}
       />
 
       <div className="mt-10 mb-5 flex flex-row justify-between">
@@ -152,6 +194,23 @@ function ListEditor() {
               <Label className="text-2xl text-right w-full">Songs:</Label>
               <Label className="text-xl text-start self-end">{data.length}</Label>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card className="w-full max-w-[20%] max-h-20 pt-4">
+          <CardContent className="space-y-4">
+            <Select onValueChange={handleTypeSelectChanged} value={listType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Pick one" />
+              </SelectTrigger>
+              <SelectContent>
+                {["Anime", "Normie", "Game"].map((option) => (
+                  <SelectItem key={option.toLowerCase()} value={option.toLowerCase()}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </CardContent>
         </Card>
 
