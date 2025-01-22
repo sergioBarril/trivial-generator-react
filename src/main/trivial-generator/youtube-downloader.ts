@@ -36,6 +36,7 @@ export async function downloadAudio({ outputDir, songId }: DownloadAudioParams) 
     });
     download.on("error", (err) => {
       console.error(`Error downloading ${songId} -- ${err.message}`);
+      console.error(err);
       resolve(false);
     });
   });

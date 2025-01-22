@@ -10,18 +10,17 @@ import trivialYoutubeScriptPath from "./trivial.youtube.ejs?asset";
 import trivialModalScriptPath from "./trivial.modal.ejs?asset";
 
 import trivialCssPath from "./trivial.css.ejs?asset";
-
-import { SongWithId } from "..";
+import { Song } from "..";
 
 export type RenderTemplateProps = {
-  songs: SongWithId[];
+  songs: Song[];
   unembeddableIds: Array<string>;
   failedIds: Array<string>;
   author: string;
   outputDir: string;
 };
 
-export type SongWithIdAndCopyright = SongWithId & { isEmbeddable: boolean };
+export type SongWithIdAndCopyright = Song & { isEmbeddable: boolean };
 export type AnimeInfo = Record<string, SongWithIdAndCopyright>;
 
 export async function renderTemplate({
