@@ -25,8 +25,10 @@ export async function downloadAudio({ outputDir, songId }: DownloadAudioParams) 
 
   return await new Promise<boolean>((resolve) => {
     const writeStream = fs.createWriteStream(fullPath);
+
     const download = ytdl(`https://youtu.be/${songId}`, {
-      filter: "audioonly"
+      filter: "audioonly",
+      playerClients: ["ANDROID"]
     });
 
     download.pipe(writeStream);
