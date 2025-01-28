@@ -8,7 +8,6 @@ const API_KEY = import.meta.env.MAIN_VITE_YOUTUBE_API_KEY;
 const youtubeAPI = youtube({ version: "v3", auth: API_KEY });
 
 export async function importYoutubePlaylist(playlistId: string) {
-  console.log(import.meta.env.VITE_YOUTUBE_API_KEY);
   const response = await youtubeAPI.playlistItems
     .list({
       part: "id,snippet",

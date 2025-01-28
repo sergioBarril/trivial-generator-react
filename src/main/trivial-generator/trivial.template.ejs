@@ -287,6 +287,30 @@
             player.setVolume(percent);
             audio.volume = percent / 100;
         }
+
+
+        // Add event listener to the progress bar
+        document.getElementById('progressBar').addEventListener('click', function (event) {
+            if (currentError || currentId == "") return;
+
+            const progressBar = document.getElementById('progressBar');
+            const rect = progressBar.getBoundingClientRect();
+            const clickPosition = event.clientX - rect.left;
+            const progressBarWidth = progressBar.offsetWidth;
+            const percent = (clickPosition / progressBarWidth) * 100;
+
+            const songDuration = getDuration();
+            const newTime = (percent / 100) * songDuration;
+
+            if (currentEmbeddable) {
+                player.seekTo(newTime);
+            } else {
+                audio.currentTime = newTime;
+            }
+
+            progress(percent);
+        });
+
     </script>
     <%- include(assetPaths.playerScript) %>
     <%- include(assetPaths.modalScript, { songInfo: songInfo, trivialType: trivialType}) %>
