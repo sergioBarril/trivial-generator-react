@@ -159,7 +159,7 @@ function ListEditor() {
   };
 
   const isCurrentDataValid = data.every((song) => song.id.length);
-  const displayedListPath = window.api.path.basename(listPath) || "Choose input file";
+  const displayedListPath = window.api.path.basename(listPath) || "Choose output file";
 
   const canSave = isCurrentDataValid && listPath?.length;
 
