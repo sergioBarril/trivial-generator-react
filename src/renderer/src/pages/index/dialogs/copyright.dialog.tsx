@@ -35,7 +35,7 @@ export default function CopyrightProgressDialog({
    * @returns A map that assigns to each songId true iff it's embeddable.
    */
   const checkEmbeddability = async () => {
-    const songIds = songs.map((song) => song.link.split("/").at(-1)!);
+    const songIds = songs.map((song) => song.id);
 
     const results = new Map<string, boolean>();
 

@@ -41,8 +41,6 @@ export const ListEditorTable = ({
 }: ListEditorTableProps) => {
   const columnVisibility = useMemo(() => getColumnVisibility(type), [type]);
 
-  console.log("xxxxxxxxxxx", columnVisibility);
-
   const updateData = (rowIndex: number, columnId: string, value: string) => {
     setData((old) =>
       old.map((row, index) => {
